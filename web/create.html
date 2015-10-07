@@ -19,6 +19,43 @@
       <script src="js/html5shiv.js"></script>
       <script src="js/respond.min.js"></script>
       <![endif]-->
+      <!-- Loading Google Map API engine v3 -->
+      <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+      <!-- Map Script -->
+        <script>
+            var map;
+            var marker = null;
+
+            function initialize() {
+
+                var mapOptions = {
+                    zoom: 12,
+                    disableDefaultUI: false,
+                    center: new google.maps.LatLng(1.354625368768736,103.81874084472656), //center on sherbrooke
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+                
+                google.maps.event.addListener(map, 'click', function(event) {
+                //call function to create marker
+
+                    $("#latitude").val(event.latLng.lat());
+                    $("#longitude").val(event.latLng.lng());
+
+                    //delete the old marker
+                    if (marker) { marker.setMap(null); }
+
+                     marker = new google.maps.Marker({ position: event.latLng, map: map});
+
+                });
+
+            }  
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+            
+        </script>
    </head>
    <body>
       <div id="wrapper">
@@ -135,6 +172,18 @@
                         <div class="form-group">
                            <label>Contact Number</label>
                            <input class="form-control" type="number" data-validation="number" data-validation-allowing="range[80000000;99999999]" />
+                        </div>
+                        <div class="form-group">
+                           <label>Location</label>
+                           <div id="map"></div>
+                        </div>
+                        <div class="form-group col-md-6">
+                           <label>Latitude</label>
+                           <input class="form-control" type="text" id="latitude" />
+                        </div>
+                        <div class="form-group col-md-6">
+                           <label>Longitutde</label>
+                           <input class="form-control" type="text" id="longitude" />
                         </div>
                         <div class="form-group">
                            <label>Type of Assistance</label>
