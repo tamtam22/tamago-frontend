@@ -25,6 +25,11 @@
     <script>
       var map;
       var marker = null;
+      var mapTypeIds = [];
+      for(var type in google.maps.MapTypeId) {
+        mapTypeIds.push(google.maps.MapTypeId[type]);
+      }
+      mapTypeIds.push("OSM");
       function initialize() {
         var mapOptions = {
           zoom: 12,
@@ -32,9 +37,20 @@
           maxZoom: 20,
           disableDefaultUI: false,
           center: new google.maps.LatLng(1.354625,103.818740), //center on Singapore
-          mapTypeId: google.maps.MapTypeId.ROADMAP
+          mapTypeId: "OSM",
+          mapTypeControlOptions: {
+            mapTypeIds: mapTypeIds
+          }
         };
         map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        map.mapTypes.set("OSM", new google.maps.ImageMapType({
+          getTileUrl: function(coord, zoom) {
+            return "http://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+          },
+          tileSize: new google.maps.Size(256, 256),
+          name: "OpenStreetMap",
+          maxZoom: 18
+        }));
         // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
@@ -272,7 +288,8 @@
         <!-- /.col-lg-6 (nested) -->
         </div>
         <!-- /.row (nested) -->
-        <div class="form-group col-lg-12" style="margin-top:15px"><button type="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-plus"></i>&nbsp; Create Incident Report</button></div>
+        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-plus"></i>&nbsp; Create Incident Report</button></div>
+        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="if(confirm('Are you sure you want to cancel creating this report?')) location.href='index.html';return false;" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
         </div>
         <!-- /.panel-body -->
         </div>
