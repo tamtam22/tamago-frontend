@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -67,68 +67,15 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html" style="letter-spacing:0.2em;color:#fff"><span style="color:red">CRISIS</span> MANAGEMENT SYSTEM</a>
+        <a class="navbar-brand" href="index.php" style="letter-spacing:0.2em;color:#fff"><span style="color:red">CRISIS</span> MANAGEMENT SYSTEM</a>
       </div>
       <!-- Top Menu Items -->
       <ul class="nav navbar-right top-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <b class="caret"></b></a>
-          <ul class="dropdown-menu message-dropdown">
-            <li class="message-preview">
-              <a href="#">
-                <div class="media">
-                  <span class="pull-left">
-                  <img class="media-object" src="http://placehold.it/50x50" alt="">
-                  </span>
-                  <div class="media-body">
-                    <h5 class="media-heading"><strong>John Smith</strong>
-                    </h5>
-                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="message-preview">
-              <a href="#">
-                <div class="media">
-                  <span class="pull-left">
-                  <img class="media-object" src="http://placehold.it/50x50" alt="">
-                  </span>
-                  <div class="media-body">
-                    <h5 class="media-heading"><strong>John Smith</strong>
-                    </h5>
-                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="message-preview">
-              <a href="#">
-                <div class="media">
-                  <span class="pull-left">
-                  <img class="media-object" src="http://placehold.it/50x50" alt="">
-                  </span>
-                  <div class="media-body">
-                    <h5 class="media-heading"><strong>John Smith</strong>
-                    </h5>
-                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="message-footer">
-              <a href="#">Read All New Messages</a>
-            </li>
-          </ul>
-        </li>
-        <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li>
-              <a href="login.html"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+              <a href="login.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
             </li>
           </ul>
         </li>
@@ -137,16 +84,16 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav side-nav">
           <li>
-            <a href="index.html"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+            <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
           </li>
           <li>
-            <a href="create.html"><i class="fa fa-fw fa-edit"></i> New Report</a>
+            <a href="create.php"><i class="fa fa-fw fa-edit"></i> New Report</a>
           </li>
           <li class="active">
-            <a href="view_reports.html"><i class="fa fa-flag"></i> View Reports</a>
+            <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View Reports</a>
           </li>
           <li>
-            <a href="email_log.html"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>
+            <a href="email_log.php"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>
           </li>
         </ul>
       </div>
@@ -163,7 +110,7 @@
           </div>
         </div>
         <!-- /.row -->
-        <form role="form" action="incident_details.html" method="POST">
+        <form role="form" action="incident_details.php" method="POST">
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="row">
@@ -239,7 +186,7 @@
                 </div>
                 <!-- /.row (nested) -->
                 <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-check-square-o"></i>&nbsp; Update</button></div>
-                <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="location.href='view_reports.html';return false;" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
+                <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="location.href='view_reports.php';return false;" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
               </div>
               <!-- /.panel-body -->
             </div>
