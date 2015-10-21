@@ -1,4 +1,54 @@
-﻿<!DOCTYPE html>
+﻿<?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+	header('Location: login.php');
+    exit();
+}
+if($_SESSION["user_type"] == "3") {
+	die("ERROR: Only Call Center Operators can create new incident reports!");
+}
+$con = mysqli_connect("localhost", "root", "", "cms");
+if(mysqli_connect_errno()) {
+	die("MySQL error: " . mysqli_connect_error());
+}
+if(isset($_POST['submit'])) {
+	$name = $_POST["name"];
+	$mobile = $_POST["contact"];
+	$locX = $_POST["latitude"];
+	$locY = $_POST["longitude"];
+	$assistance = implode(",", $_POST["assistance"]);
+	
+	$insert = $con->prepare("INSERT INTO incidents (name, mobile, latitude, longitude, assistance_type, operator)
+VALUES (?,?,?,?,?,?);");
+    $insert->bind_param("siddsi", $name, $mobile, $locX, $locY, $assistance, $_SESSION["user_id"]);
+    $insert->execute();
+	$rows = $insert->affected_rows;
+	
+	if($rows == 1) {
+		
+		/* ---------------------------------------------------------------------------------------
+		 * FACEBOOK, TWITTER, EMAIL API GOES HERE AFTER INCIDENT ADDED INTO DATABASE SUCCESSFULLY
+		 * 
+		 * Available datas in PHP:
+		 * $name ==> name of caller
+		 * $mobile ==> mobile no
+		 * $locX ==> X coordinates
+		 * $locY ==> Y coordinates
+		 * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
+		 * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
+		 * 
+		 * if want to FB post or tweet gmap available to public, can use this url below:
+		 * http://maps.google.com/maps?q=1.354625,103.818740&z=20
+		 *            q ==> locX,locY
+		 *            z ==> Zoom level integer eg. 20
+		 *            (Change accordingly to your requirements)
+		 * ---------------------------------------------------------------------------------------
+		 */
+		
+	}
+}
+?>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -136,7 +186,7 @@
       <!-- Top Menu Items -->
       <ul class="nav navbar-right top-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?> (<?php echo $_SESSION["user_type_name"]; ?>) <b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li>
               <a href="login.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -154,7 +204,7 @@
             <a href="create.php"><i class="fa fa-fw fa-edit"></i> New Report</a>
           </li>
           <li>
-            <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View Reports</a>
+            <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View All Reports</a>
           </li>
           <li>
             <a href="email_log.php"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>
@@ -165,6 +215,16 @@
     </nav>
     <div id="page-wrapper">
       <div class="container-fluid">
+      <?php
+      if(isset($_POST['submit'])) {
+      	if($rows == 1) {
+      		echo '<div class="alert alert-success" style="margin:10px 0 -5px 0;"><i class="fa fa-check"></i> Incident report created successfully!</div>';
+      	}
+      	else {
+      		echo '<div class="alert alert-danger" style="margin:10px 0 -5px 0;"><i class="fa fa-exclamation-triangle"></i> <b>ERROR INSERTING INCIDENT INTO DATABASE</b></div>';
+      	}
+      }
+	  ?>
         <!-- Page Heading -->
         <div class="row">
           <div class="col-lg-12">
@@ -179,7 +239,6 @@
             <div class="panel-body">
               <div class="row">
                 <div class="col-lg-4">
-        <form role="form">
         <div class="form-group">
         <label for="name">Name of Caller</label>
         <input class="form-control" id="name" name="name" data-validation="length" data-validation-length="2-50" autofocus />
@@ -192,17 +251,17 @@
         <label>Type of Assistance</label>
         <div class="checkbox">
         <label>
-        <input type="checkbox" name="assistance[]" value="" data-validation="checkbox_group" data-validation-qty="1-3">Emergency Ambulance
+        <input type="checkbox" name="assistance[]" value="1" data-validation="checkbox_group" data-validation-qty="1-3">Emergency Ambulance
         </label>
         </div>
         <div class="checkbox">
         <label>
-        <input type="checkbox" name="assistance[]" value="">Rescue and Evacuation
+        <input type="checkbox" name="assistance[]" value="2">Rescue and Evacuation
         </label>
         </div>
         <div class="checkbox">
         <label>
-        <input type="checkbox" name="assistance[]" value="">Fire Fighting
+        <input type="checkbox" name="assistance[]" value="3">Fire Fighting
         </label>
         </div>
         </div>
@@ -235,7 +294,7 @@
         <!-- /.col-lg-6 (nested) -->
         </div>
         <!-- /.row (nested) -->
-        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-plus"></i>&nbsp; Create Incident Report</button></div>
+        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" name="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-plus"></i>&nbsp; Create Incident Report</button></div>
         <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="if(confirm('Are you sure you want to cancel creating this report?')) location.href='index.php';return false;" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
         </div>
         <!-- /.panel-body -->

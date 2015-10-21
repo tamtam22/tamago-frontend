@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿<?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+	header('Location: login.php');
+    exit();
+}
+?>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -37,7 +44,7 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?> (<?php echo $_SESSION["user_type_name"]; ?>) <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li>
                 <a href="login.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -51,11 +58,13 @@
             <li>
               <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
             </li>
+            <?php if($_SESSION["user_type"] != "3") { ?>
             <li>
               <a href="create.php"><i class="fa fa-fw fa-edit"></i> New Report</a>
             </li>
+            <?php } ?>
             <li>
-              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View Reports</a>
+              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View All Reports</a>
             </li>
             <li class="active">
               <a href="email_log.php"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>

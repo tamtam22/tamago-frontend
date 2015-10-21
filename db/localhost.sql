@@ -6,7 +6,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-DROP DATABASE `cms`;
+DROP DATABASE IF EXISTS `cms`;
 CREATE DATABASE IF NOT EXISTS `cms` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `cms`;
 
@@ -31,15 +31,20 @@ CREATE TABLE IF NOT EXISTS `incidents` (
   `assistance_type` varchar(10) NOT NULL,
   `reported_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_on` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_user` int(11) DEFAULT NULL,
   `operator` int(11) NOT NULL,
-  `status` int(1) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+  `status` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
-INSERT INTO `incidents` (`id`, `name`, `mobile`, `latitude`, `longitude`, `assistance_type`, `reported_on`, `last_updated_on`, `operator`, `status`) VALUES
-(1, 'Tan Ah Meng', 99991111, 1.3340635073290337, 103.83099398950196, '1', '2015-10-07 09:54:55', '2015-10-16 22:57:28', 2, 1),
-(3, 'asasa', 99999999, 1.386202, 103.708309, '1,3', '2015-10-17 18:46:19', '2015-10-17 19:25:05', 1, 1),
-(4, 'test', 33333333, 1.418121, 103.744926, '2', '2015-10-17 19:22:14', '2015-10-17 19:22:32', 1, 1),
-(11, 'Natalia Keong', 99999999, 1.330599, 103.90057, '1,2,3', '2015-10-17 14:10:36', '2015-10-17 19:24:43', 1, 0);
+INSERT INTO `incidents` (`id`, `name`, `mobile`, `latitude`, `longitude`, `assistance_type`, `reported_on`, `last_updated_on`, `last_updated_user`, `operator`, `status`) VALUES
+(1, 'Samuel Tan', 95475260, 1.314124, 103.768047, '1,3', '2015-10-21 15:24:08', NULL, NULL, 1, 1),
+(2, 'Angela', 85600143, 1.324764, 103.899883, '1,2', '2015-10-21 15:26:07', NULL, NULL, 1, 1),
+(3, 'Lee Kong Nam', 80496372, 1.387232, 103.899427, '3', '2015-10-21 15:28:28', NULL, NULL, 1, 1),
+(4, 'Lam Xiu Moi', 95630042, 1.295246, 103.78693, '1', '2015-10-21 15:28:54', NULL, NULL, 1, 1),
+(5, 'Leonard Sim', 97208843, 1.337292, 103.80832, '1,2,3', '2015-10-21 15:29:39', NULL, NULL, 1, 1),
+(6, 'Xiu Mei', 85472100, 1.300052, 103.859596, '1,3', '2015-10-21 15:30:25', NULL, NULL, 1, 1),
+(7, 'Jessica Tan', 87936425, 1.378651, 103.768959, '1', '2015-10-21 15:31:22', NULL, NULL, 1, 1),
+(8, 'Jia Xin', 90329644, 1.434939, 103.791393, '1,2', '2015-10-21 16:56:13', '2015-10-21 19:43:07', 3, 2, 1);
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
@@ -48,11 +53,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(200) NOT NULL,
   `password` varchar(100) NOT NULL,
   `user_type` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `user_type`) VALUES
-(1, 'Administrator', 'admin@admin.com', '827ccb0eea8a706c4c34a16891f84e7b', 1),
-(2, 'Mary Chia', 'marry@ops.com', '827ccb0eea8a706c4c34a16891f84e7b', 2);
+(1, 'Administrator', 'admin@cms', '827ccb0eea8a706c4c34a16891f84e7b', 1),
+(2, 'David Wang', 'ops@ops.com', '827ccb0eea8a706c4c34a16891f84e7b', 2),
+(3, 'Jasmine Poh', 'gov@gov.sg', '827ccb0eea8a706c4c34a16891f84e7b', 3);
 
 DROP TABLE IF EXISTS `users_type`;
 CREATE TABLE IF NOT EXISTS `users_type` (
@@ -63,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `users_type` (
 INSERT INTO `users_type` (`id`, `name`) VALUES
 (1, 'Administrator'),
 (2, 'Call Center Operator'),
-(3, 'Government Agencies');
+(3, 'Government Agency');
 
 
 ALTER TABLE `email_log`
@@ -85,9 +91,9 @@ ALTER TABLE `users_type`
 ALTER TABLE `email_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 ALTER TABLE `incidents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 ALTER TABLE `users_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 

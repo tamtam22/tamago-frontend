@@ -21,9 +21,9 @@
         $seconds = $diff->days*86400 + $diff->h*3600 + $diff->i*60 + $diff->s;
         if($seconds > 0){
         	if (($t = $diff->format("%m")) > 0)
-        		$time_ago .= $t . ' months ';
+        		$time_ago .= $t . 'months ';
         	if (($t = $diff->format("%d")) > 0)
-        			$time_ago .= $t . ' days ';
+        			$time_ago .= $t . 'days ';
         	if (($t = $diff->format("%H")) > 0) {
         				$time_ago .= $t . 'hr ';
         	}
@@ -62,7 +62,7 @@
       <td style="text-align:center"><?php if(in_array("1",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
       <td style="text-align:center"><?php if(in_array("2",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
       <td style="text-align:center"><?php if(in_array("3",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
-      <td style="text-align:center"><?php echo date("h:i A",strtotime($reported)) . "<br><span style='font-size:12px'>(" . date("d M Y",strtotime($reported)); ?>)</span></td>
+      <td style="text-align:center"><?php echo date("h:i A",strtotime($reported)) . "<br><span style='font-size:12px'>" . strtoupper(date("d M Y",strtotime($reported))); ?></span></td>
       <td style="text-align:center"><b><?php echo time_ago($dt); ?></b></td>
       <script>incident_count++;</script>
     </tr>

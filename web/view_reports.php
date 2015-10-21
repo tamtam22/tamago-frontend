@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿<?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+	header('Location: login.php');
+    exit();
+}
+?>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -19,6 +26,7 @@
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript" src="js/moment.min.js"></script>
   </head>
   <body>
     <div id="wrapper">
@@ -37,7 +45,7 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?> (<?php echo $_SESSION["user_type_name"]; ?>) <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li>
                 <a href="login.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -51,11 +59,13 @@
             <li>
               <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
             </li>
+            <?php if($_SESSION["user_type"] != "3") { ?>
             <li>
               <a href="create.php"><i class="fa fa-fw fa-edit"></i> New Report</a>
             </li>
+            <?php } ?>
             <li class="active">
-              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View Reports</a>
+              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View All Reports</a>
             </li>
             <li>
               <a href="email_log.php"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>
@@ -84,51 +94,17 @@
                       <thead>
                         <tr>
                           <th rowspan="2" width="1%" style="vertical-align:middle">#</th>
-                          <th rowspan="2" width="20%" style="vertical-align:middle;text-align:center">Reported by</th>
+                          <th rowspan="2" width="30%" style="vertical-align:middle;text-align:center">Reported by</th>
                           <th rowspan="1" width="15%" style="vertical-align:middle;text-align:center"><i class="fa fa-ambulance" style="font-size:24px"></i><br>Emergency Ambulance</th>
                           <th rowspan="1" width="15%" style="vertical-align:middle;text-align:center"><i class="fa fa-life-ring" style="font-size:24px"></i><br>Rescue and Evacuation</th>
                           <th rowspan="1" width="15%" style="vertical-align:middle;text-align:center"><span class="glyphicon glyphicon-fire" style="font-size:24px"></span><br>Fire Fighting</th>
-                          <th rowspan="2" width="17%" style="vertical-align:middle;text-align:center">Reported on</th>
-                          <th rowspan="2" width="17%" style="vertical-align:middle;text-align:center">Last Updated</th>
-                          <th rowspan="2" width="17%" style="vertical-align:middle;text-align:center">Status</th>
+                          <th rowspan="2" width="12%" style="vertical-align:middle;text-align:center">Reported on</th>
+                          <th rowspan="2" width="12%" style="vertical-align:middle;text-align:center">Last Updated</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php 
                           date_default_timezone_set('Asia/Singapore');
-                          function time_ago(Datetime $date) {
-                          	$time_ago = '';
-                          
-                          	$diff = $date->diff(new Datetime('now'));
-                          	$seconds = $diff->days*86400 + $diff->h*3600 + $diff->i*60 + $diff->s;
-                          	if($seconds > 0){
-                          		if (($t = $diff->format("%m")) > 0)
-                          			$time_ago .= $t . ' months ';
-                          			if (($t = $diff->format("%d")) > 0)
-                          				$time_ago .= $t . ' days ';
-                          				if (($t = $diff->format("%H")) > 0) {
-                          					$time_ago .= $t . 'hr ';
-                          				}
-                          				if (($t = $diff->format("%i")) >= 0) {
-                          					if (($t = $diff->format("%i")) < 10) {
-                          						$time_ago .= '0' . $t . 'min ';
-                          					} else {
-                          						$time_ago .= $t . 'min ';
-                          					}
-                          				}
-                          
-                          				if (($t = $diff->format("%s")) >= 0) {
-                          					if (($t = $diff->format("%s")) < 10) {
-                          						$time_ago .= '0' . $t . 'sec';
-                          					} else {
-                          						$time_ago .= $t . 'sec';
-                          					}
-                          				}
-                          	}
-                          	else
-                          		$time_ago = "&mdash;";
-                          		return $time_ago;
-                          }
                           $con = mysqli_connect("localhost", "root", "", "cms");
                           $retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status FROM incidents ORDER BY id DESC");
                           $retrieve->execute();
@@ -137,15 +113,32 @@
                           	$assistance = explode(",", $asst_type);
                           	$dt2 = new DateTime($updated);
                           	?>
+                          	
                         <tr onclick="document.location='incident_details.php?id=<?php echo $id; ?>'" style="cursor:pointer">
                           <td><?php echo $id; ?></td>
-                          <td style="text-align:center"><?php echo $name . " (" . $mobile . ")"; ?></td>
+                          <td>
+                          <?php if($status == 0) {echo "<span class='btn btn-success btn-xs'>RESOLVED</span>";} elseif ($status==1) {echo "<span class='btn btn-primary btn-xs'>OPEN</span>";} ?>
+                          <span style="font-weight:500">&nbsp;<?php echo $name . "</span> &nbsp;&mdash;&nbsp; <span style='font-size:12px'><i class='fa fa-phone'></i> " . $mobile . "</span>"; ?></td>
                           <td style="text-align:center"><?php if(in_array("1",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
                           <td style="text-align:center"><?php if(in_array("2",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
                           <td style="text-align:center"><?php if(in_array("3",$assistance)) { ?><i class="fa fa-check" style="font-size:24px"></i><?php } ?></td>
-                          <td style="text-align:center"><?php echo date("h:i A",strtotime($reported)) . "<br><span style='font-size:12px'>(" . date("d M Y",strtotime($reported)); ?>)</span></td>
-                          <td style="text-align:center"><b><?php echo time_ago($dt2) . " ago"; ?></b></td>
-                          <td style="text-align:center"><b><?php if($status == 0) {echo "<span style='color:red'>CLOSED</span>";} elseif ($status==1) {echo "<span style='color:blue'>OPEN</span>";} ?></b></td>
+                          <td style="text-align:center">
+                          <script>
+                          var t1 = "<?php echo $reported; ?>";
+                          t1 = t1.split(/[- :]/);
+                          var rDate = new Date(t1[0], t1[1]-1, t1[2], t1[3], t1[4], t1[5]);
+                          document.write(moment(rDate).calendar());
+                          </script>
+						</td>
+                          <td style="text-align:center">
+                          <script>
+                          var t2 = "<?php echo $updated; ?>";
+                          t2 = t2.split(/[- :]/);
+                          var uDate = new Date(t2[0], t2[1]-1, t2[2], t2[3], t2[4], t2[5]);
+                          if(moment(uDate).fromNow() == "Invalid date") {document.write("&mdash;");}
+                          else { document.write(moment(uDate).fromNow()); }
+                          </script>
+                          </td>
                         </tr>
                         <?php
                           }

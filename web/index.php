@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿<?php
+session_start();
+if(!isset($_SESSION["user_id"])){
+	header('Location: login.php');
+    exit();
+}
+?>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -20,11 +27,14 @@
     <![endif]-->
     <!-- jQuery -->
     <script src="js/jquery-2.1.4.min.js"></script> <!-- Bootstrap Core JavaScript -->
-    <script language="javascript" type="text/javascript">
-      function resizeIframe(obj) {
+    <script type="text/javascript">
+    function resizeIframe(obj) {
+        // fix incomplete height calculation due to slow page load
+        if(obj.contentWindow.document.body.scrollHeight < 1200) { document.getElementById('live').contentWindow.location.reload(); }
         obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
       }
     </script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
   </head>
   <body>
     <div id="wrapper">
@@ -35,10 +45,10 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
           <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?> (<?php echo $_SESSION["user_type_name"]; ?>) <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li>
-                <a href="login.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                <a href="logout.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
               </li>
             </ul>
           </li>
@@ -47,13 +57,15 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav side-nav">
             <li class="active">
-              <a href="#top"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+              <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
             </li>
+            <?php if($_SESSION["user_type"] != "3") { ?>
             <li>
               <a href="create.php"><i class="fa fa-fw fa-edit"></i> New Report</a>
             </li>
+            <?php } ?>
             <li>
-              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View Reports</a>
+              <a href="view_reports.php"><i class="fa fa-flag"></i> &nbsp;View All Reports</a>
             </li>
             <li>
               <a href="email_log.php"><i class="fa fa-fw fa-envelope"></i> Email Logs</a>
@@ -67,7 +79,7 @@
           <!-- /.row -->
           <div class="row">
             <div class="col-lg-12">
-              <iframe frameborder="0" src="live_map.php" width="100%" scrolling="no" id="iframe" name="Stack" onload='javascript:resizeIframe(this);'>Browser not compatible.</iframe>
+              <iframe frameborder="0" src="live_map.php" width="100%" style="height:1200px" scrolling="no" id="live" onload='javascript:resizeIframe(this);'>Browser not compatible.</iframe>
             </div>
           </div>
           <!-- /.row -->
