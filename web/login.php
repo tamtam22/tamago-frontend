@@ -1,25 +1,25 @@
 ﻿<?php
 session_start();
 $con = mysqli_connect("localhost", "root", "", "cms");
-if(mysqli_connect_errno()) {
-	die("MySQL error: " . mysqli_connect_error());
+if (mysqli_connect_errno()) {
+  die("MySQL error: " . mysqli_connect_error());
 }
-if(isset($_POST['login'])) {
-	$retrieve = $con->prepare("SELECT u.id, u.name, u.user_type, t.name FROM users u, users_type t WHERE u.email = ? AND u.password = ? AND u.user_type = t.id");
-	$email = $_POST["email"];
-	$pw = md5($_POST["password"]);
-    $retrieve->bind_param("ss", $email, $pw);
-    $retrieve->execute();
-    $retrieve->bind_result($id, $name, $type, $typeName);
-	$count = 0;
-	while ($retrieve->fetch()){
-		$_SESSION["user_id"] = $id;
-		$_SESSION["user_name"] = $name;
-		$_SESSION["user_type"] = $type;
-		$_SESSION["user_type_name"] = $typeName;
-		header('Location: index.php');
-		$count++;
-	}
+if (isset($_POST['login'])) {
+  $retrieve = $con->prepare("SELECT u.id, u.name, u.user_type, t.name FROM users u, users_type t WHERE u.email = ? AND u.password = ? AND u.user_type = t.id");
+  $email    = $_POST["email"];
+  $pw       = md5($_POST["password"]);
+  $retrieve->bind_param("ss", $email, $pw);
+  $retrieve->execute();
+  $retrieve->bind_result($id, $name, $type, $typeName);
+  $count = 0;
+  while ($retrieve->fetch()) {
+    $_SESSION["user_id"]        = $id;
+    $_SESSION["user_name"]      = $name;
+    $_SESSION["user_type"]      = $type;
+    $_SESSION["user_type_name"] = $typeName;
+    header('Location: index.php');
+    $count++;
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -46,9 +46,13 @@ if(isset($_POST['login'])) {
         </div>
         <div class="panel panel-default" style="border:0">
           <div class="panel-body">
-		  <?php if(isset($count) && $count == 0) { ?>
-		  <div class="alert alert-danger"><b><center>ERROR: Incorrect Email Address or Password</center></b></div>
-		  <?php } ?>
+            <?php if (isset($count) && $count == 0) { ?>
+            <div class="alert alert-danger">
+              <b>
+                <center>ERROR: Incorrect Email Address or Password</center>
+              </b>
+            </div>
+            <?php } ?>
             <form name="form" id="form" class="form-horizontal" enctype="multipart/form-data" action="login.php" method="POST">
               <div class="input-group">
                 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>

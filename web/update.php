@@ -1,22 +1,14 @@
 ﻿<?php
 session_start();
-require_once("facebook/autoload.php");
-use Facebook\FacebookSession;
-use Facebook\FacebookRequest;
-use Facebook\GraphObject;
-use Facebook\FacebookRequestException;
-
 if (!isset($_SESSION["user_id"])) {
   header('Location: login.php');
   exit();
 }
-if ($_SESSION["user_type"] == "3") {
-  die("ERROR: Only Call Center Operators can create new incident reports!");
+if (!isset($_GET["id"])) {
+  header("Location: view_reports.php");
 }
-$con = mysqli_connect("localhost", "root", "", "cms");
-if (mysqli_connect_errno()) {
-  die("MySQL error: " . mysqli_connect_error());
-}
+$con        = mysqli_connect("localhost", "root", "", "cms");
+$asst_array = "";
 if (isset($_POST['submit'])) {
   $name       = $_POST["name"];
   $mobile     = $_POST["contact"];
@@ -24,58 +16,35 @@ if (isset($_POST['submit'])) {
   $locY       = $_POST["longitude"];
   $location   = trim($_POST["location"]);
   $assistance = implode(",", $_POST["assistance"]);
-  $insert     = $con->prepare("INSERT INTO incidents (name, mobile, latitude, longitude, location, assistance_type, operator)
-  VALUES (?,?,?,?,?,?,?);");
-  $insert->bind_param("siddssi", $name, $mobile, $locX, $locY, $location, $assistance, $_SESSION["user_id"]);
-  $insert->execute();
-  $rows = $insert->affected_rows;
-
-  if ($rows == 1) {
-    /* ---------------------------------------------------------------------------------------
-     * FACEBOOK, TWITTER, EMAIL API GOES HERE AFTER INCIDENT ADDED INTO DATABASE SUCCESSFULLY
-     * 
-     * Available datas in PHP:
-     * $name ==> name of caller
-     * $mobile ==> mobile no
-     * $locX ==> X coordinates
-     * $locY ==> Y coordinates
-     * $location ==> long address of incident location
-     * 
-     * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
-     * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
-     * 
-     * if want to FB post or tweet gmap available to public, can use this url below:
-     * https://www.google.com/maps/place/8+Sentosa+Gateway,+Singapore+098269/@1.2546,103.821162,17z/
-     *            need to replace all whitespace with +
-     *            @locX,locY
-     *            17z ==> Zoom level integer
-     *            (Change accordingly to your requirements)
-     * --------------------------------------------------------------------------------------- */
-
-    /* --------------------------------------Facebook------------------------------------------*/
-    $APP_ID     = '1515229708793971';
-    $APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
-    //token
-    $TOKEN      = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
-    $ID         = "1487065338263076"; // your id or facebook page id
-    FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
-    $session = new FacebookSession($TOKEN);
-    $address = str_replace(' ', '+', $location);
-    $params  = array(
-      "message" => "Accident along " . $location,
-      "link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
-    );
-    if ($session) {
-    	try {
-    		$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
-    	}
-    	catch (FacebookRequestException $e) {
-    		echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
-    	}
-    }
-    /* -------------------------------End of Facebook------------------------------------------*/
+  $status     = $_POST["status"];
+  $id         = $_GET["id"];
+  $last_upd   = $_SESSION["user_id"];
+  $update     = $con->prepare("UPDATE incidents SET name = ?, mobile = ?, latitude = ?, longitude = ?, location = ?, assistance_type = ?, last_updated_user = ?, status = ? WHERE id = ?");
+  $update->bind_param("siddssiii", $name, $mobile, $locX, $locY, $location, $assistance, $last_upd, $status, $id);
+  $rc = $update->execute();
+  $update->close();
+  if (!false === $rc) {
+    header("Location: incident_details.php?id=" . $_GET["id"] . "&update=true");
   }
+} else {
+  $retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status, latitude, longitude, location FROM incidents WHERE id = ?");
+  $retrieve->bind_param("i", $_GET["id"]);
+  $retrieve->execute();
+  $retrieve->bind_result($id, $name, $mobile, $asst_type, $reported, $updated, $status, $lat, $lng, $location);
+  while ($retrieve->fetch()) {
+    $asst_array = explode(",", $asst_type);
+  }
+  if (!empty($updated)) {
+    $retrieve = $con->prepare("SELECT u.name, t.name FROM incidents i, users u, users_type t WHERE i.id = ? AND i.last_updated_user = u.id AND u.user_type = t.id GROUP BY i.id");
+    $retrieve->bind_param("i", $_GET["id"]);
+    $retrieve->execute();
+    $retrieve->bind_result($lastUser, $lastUserType);
+    while ($retrieve->fetch()) {
+    }
+  }
+  $retrieve->close();
 }
+$con->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,7 +54,7 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>New Incident Report :: Crisis Management System</title>
+    <title>Update Incident Report :: Crisis Management System</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/sb-admin.css" rel="stylesheet">
     <link href="fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -105,20 +74,25 @@ if (isset($_POST['submit'])) {
         mapTypeIds.push(google.maps.MapTypeId[type]);
     }
     mapTypeIds.push("OSM");
+    var latLng = new google.maps.LatLng(<?php echo $lat . ", " . $lng; ?>);
 
     function initialize() {
         var mapOptions = {
-            zoom: 12,
+            zoom: 18,
             minZoom: 12,
             maxZoom: 20,
             disableDefaultUI: false,
-            center: new google.maps.LatLng(1.354625, 103.818740), //center on Singapore
+            center: latLng,
             mapTypeId: "OSM",
             mapTypeControlOptions: {
                 mapTypeIds: mapTypeIds
             }
         };
         map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map
+        });
         map.mapTypes.set("OSM", new google.maps.ImageMapType({
             getTileUrl: function(coord, zoom) {
                 return "http://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
@@ -239,91 +213,96 @@ if (isset($_POST['submit'])) {
   <body>
     <div id="wrapper">
     <nav class="navbar navbar-inverse navbar-fixed-top" style="border-width:0">
-        <div class="navbar-header">
-          <button class="navbar-toggle" data-target=".navbar-ex1-collapse" data-toggle="collapse" type="button"><span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button> <a class="navbar-brand" href="index.php" style="letter-spacing:0.2em;color:#fff;font-size:15px;"><span style="color:red">CRISIS</span><br>MANAGEMENT SYSTEM</a>
-        </div>
-        <ul class="nav navbar-left top-nav">
-          <li>
-            <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Dashboard</a>
-          </li>
-          <li>
-            <a href="create.php" class="active" style="text-align:center"><i class="fa fa-fw fa-edit"></i><br>New Report</a>
-          </li>
-          <li>
-            <a href="view_reports.php" style="text-align:center"><i class="fa fa-flag"></i><br>View All Reports</a>
-          </li>
-          <li>
-            <a href="email_log.php" style="text-align:center"><i class="fa fa-fw fa-envelope"></i><br>Email Log</a>
-          </li>
-        </ul>
-        <ul class="nav navbar-right top-nav">
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?><br><span style="font-size:13px"><?php echo $_SESSION["user_type_name"]; ?></span> <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="logout.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
+      <div class="navbar-header">
+        <button class="navbar-toggle" data-target=".navbar-ex1-collapse" data-toggle="collapse" type="button"><span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button> <a class="navbar-brand" href="index.php" style="letter-spacing:0.2em;color:#fff;font-size:15px;"><span style="color:red">CRISIS</span><br>MANAGEMENT SYSTEM</a>
+      </div>
+      <ul class="nav navbar-left top-nav">
+        <li>
+          <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Dashboard</a>
+        </li>
+        <?php if($_SESSION["user_type"] != "3") { ?>
+        <li>
+          <a href="create.php" style="text-align:center"><i class="fa fa-fw fa-edit"></i><br>New Report</a>
+        </li>
+        <?php } ?>
+        <li>
+          <a href="view_reports.php" class="active" style="text-align:center"><i class="fa fa-flag"></i><br>View All Reports</a>
+        </li>
+        <li>
+          <a href="email_log.php" style="text-align:center"><i class="fa fa-fw fa-envelope"></i><br>Email Log</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-right top-nav">
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> &nbsp;<?php echo $_SESSION["user_name"]; ?><br><span style="font-size:13px"><?php echo $_SESSION["user_type_name"]; ?></span> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="logout.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
     <div id="page-wrapper">
       <div class="container-fluid">
         <?php
-        if (isset($_POST['submit'])) {
-          if ($rows == 1) {
-            echo '<div class="alert alert-success" style="margin:10px 0 -5px 0;"><i class="fa fa-check"></i> Incident report created successfully!</div>';
-          } else {
-            echo '<div class="alert alert-danger" style="margin:10px 0 -5px 0;"><i class="fa fa-exclamation-triangle"></i> <b>ERROR INSERTING INCIDENT INTO DATABASE</b></div>';
+          if(isset($_POST["submit"])) {
+          		echo '<div class="alert alert-danger" style="margin:10px 0 -5px 0;"><i class="fa fa-exclamation-triangle"></i> <b>ERROR UPDATING INCIDENT IN DATABASE.</b></div>';
           }
-        }
-        ?>
-        <form role="form" action="create.php" method="POST">
-        <div class="row">
-        
-          <div class="col-lg-12 col-sm-12 page-header" style="margin-top:10px">
-            <div class="col-lg-6 col-sm-8" style="padding-left:0">
-              <h1 style="margin:10px 0 0 0">New Incident Report</h1>
-            </div>
-            <div class="col-lg-6 col-sm-4" style="text-align: right;padding-right:0">
-            <button onclick="if(confirm('Are you sure you want to cancel creating this report?')){window.location.href='index.php';return false;}return false;" class="btn btn-danger" style="padding:8px 15px 4px;"><i class="fa fa-times" style="font-size:22px"></i><br>Cancel</button>
-              <button type="submit" id="submit" name="submit" class="btn btn-success" style="padding:8px 30px 4px;"><i class="fa fa-plus" style="font-size:22px"></i><br>Create Report</button>
+          ?>
+        <form role="form" action="update.php?id=<?php echo $_GET["id"]; ?>" method="POST">
+          <div class="row">
+            <div class="col-lg-12 col-sm-12 page-header" style="margin-top:10px">
+              <div class="col-lg-6 col-sm-8" style="padding-left:0">
+                <h1 style="margin:10px 0 0 0">Update Incident Report #<?php echo $_GET["id"]; ?></h1>
+              </div>
+              <div class="col-lg-6 col-sm-4" style="text-align: right;padding-right:0">
+                <button onclick="if(confirm('Are you sure you want to discard changes for this report?')){window.location.href='incident_details.php?id=<?php echo $_GET["id"]; ?>';return false;}return false;" class="btn btn-danger" style="padding:8px 15px 4px;"><i class="fa fa-times" style="font-size:22px"></i><br>Cancel</button>
+                <button type="submit" id="submit" name="submit" class="btn btn-success" style="padding:8px 30px 4px;"><i class="fa fa-check" style="font-size:22px"></i><br>Save Report</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="panel panel-default">
+          <div class="panel panel-default">
             <div class="panel-body">
               <div class="row">
                 <div class="col-lg-4">
                   <div class="form-group">
                     <label for="name">Name of Caller</label>
-                    <input class="form-control" id="name" name="name" data-validation="length" data-validation-length="2-50" autofocus />
+                    <input class="form-control" id="name" name="name" data-validation="length" value="<?php echo $name; ?>" data-validation-length="2-50" />
                   </div>
                   <div class="form-group">
                     <label for="contact">Contact Number</label>
-                    <input class="form-control" id="contact" name="contact" type="number" data-validation="number" data-validation-allowing="range[80000000;99999999]" />
+                    <input class="form-control" id="contact" name="contact" type="number" value="<?php echo $mobile; ?>" data-validation="number" data-validation-allowing="range[80000000;99999999]" />
                   </div>
                   <div class="form-group">
-                    <label for="contact">Location</label>
-                    <textarea class="form-control" id="location" name="location" data-validation="length" data-validation-length="2-255"></textarea>
+                    <label for="location">Location</label>
+                    <textarea class="form-control" id="location" name="location" data-validation="length" data-validation-length="2-255"><?php echo $location; ?></textarea>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group" style="margin-top:18px">
                     <label>Type of Assistance</label>
                     <div class="checkbox">
                       <label>
-                      <input type="checkbox" name="assistance[]" value="1" data-validation="checkbox_group" data-validation-qty="1-3">Emergency Ambulance
+                      <input type="checkbox" name="assistance[]" value="1" data-validation="checkbox_group" data-validation-qty="1-3"<?php if (in_array("1", $asst_array)) {echo " checked";} ?>>Emergency Ambulance
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
-                      <input type="checkbox" name="assistance[]" value="2">Rescue and Evacuation
+                      <input type="checkbox" name="assistance[]" value="2"<?php if (in_array("2", $asst_array)) {echo " checked";} ?>>Rescue and Evacuation
                       </label>
                     </div>
                     <div class="checkbox">
                       <label>
-                      <input type="checkbox" name="assistance[]" value="3">Fire Fighting
+                      <input type="checkbox" name="assistance[]" value="3"<?php if (in_array("3", $asst_array)) {echo " checked";} ?>>Fire Fighting
                       </label>
                     </div>
+                  </div>
+                  <div class="form-group">
+                    <br /><br />
+                    <label for="status">Incident Status</label>
+                    <select class="form-control" name="status" id="status">
+                      <option value="1"<?php if($status == "1") { echo ' selected="selected"'; } ?>>Open</option>
+                      <option value="0"<?php if($status == "0") { echo ' selected="selected"'; } ?>>Resolved</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-lg-8">
@@ -340,11 +319,11 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="form-group col-lg-2">
                       <label for="latitude">Latitude</label>
-                      <input class="form-control" type="text" id="latitude" name="latitude" style="cursor:not-allowed" data-validation="required" onclick="this.blur()" />
+                      <input class="form-control" type="text" id="latitude" name="latitude" style="cursor:not-allowed" data-validation="required" onclick="this.blur()" value="<?php echo $lat; ?>" />
                     </div>
                     <div class="form-group col-lg-2">
                       <label for="longitude">Longitude</label>
-                      <input class="form-control" type="text" id="longitude" name="longitude" style="cursor:not-allowed" data-validation="required" onclick="this.blur()" />
+                      <input class="form-control" type="text" id="longitude" name="longitude" style="cursor:not-allowed" data-validation="required" onclick="this.blur()" value="<?php echo $lng; ?>" />
                     </div>
                   </div>
                   <div class="row">
@@ -354,9 +333,9 @@ if (isset($_POST['submit'])) {
                   </div>
                 </div>
               </div>
-			    </div>
-        </div>
+            </div>
         </form>
+        </div>
       </div>
     </div>
     <script src="js/jquery-2.1.4.min.js"></script>
