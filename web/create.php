@@ -28,41 +28,12 @@ if(isset($_POST['submit'])) {
 	
 	$insert = $con->prepare("INSERT INTO incidents (name, mobile, latitude, longitude, location, assistance_type, operator)
 VALUES (?,?,?,?,?,?,?);");
-    $insert->bind_param("siddssi", $name, $mobile, $locX, $locY, $location, $assistance, $_SESSION["user_id"]);
-    $insert->execute();
+	$insert->bind_param("siddssi", $name, $mobile, $locX, $locY, $location, $assistance, $_SESSION["user_id"]);
+	$insert->execute();
 	$rows = $insert->affected_rows;
 	
 	if($rows == 1) {
-    /* --------------------------------------Facebook------------------------------------------*/
 
-    $APP_ID = '1515229708793971';
-    $APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
-    //token
-    $TOKEN = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
-    $ID = "1487065338263076"; // your id or facebook page id
-     
-    FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
-     
-    $session = new FacebookSession($TOKEN);
-     
-    $params = array(
-      "message" => $name,
-      "link" => "http://maps.google.com/maps?q=" . $locX . "," . $locY . "&z=20"
-    );
-     
-    if($session){
-      try {
-        $response = (new FacebookRequest(
-        $session, 'POST', '/'.$ID.'/feed', $params
-        ))->execute()->getGraphObject();
-      } catch(FacebookRequestException $e) {
-            echo "Exception occured, code: " . $e->getCode();
-            echo " with message: " . $e->getMessage();
-      }
-    }
-
-    /* -----------------------------End of Facebook------------------------------------------*/
-		
 		/* ---------------------------------------------------------------------------------------
 		 * FACEBOOK, TWITTER, EMAIL API GOES HERE AFTER INCIDENT ADDED INTO DATABASE SUCCESSFULLY
 		 * 
@@ -71,18 +42,46 @@ VALUES (?,?,?,?,?,?,?);");
 		 * $mobile ==> mobile no
 		 * $locX ==> X coordinates
 		 * $locY ==> Y coordinates
-		 * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
-		 * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
 		 * $location ==> long address of incident location
 		 * 
+		 * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
+		 * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
+		 * 
 		 * if want to FB post or tweet gmap available to public, can use this url below:
-		 * http://maps.google.com/maps?q=1.354625,103.818740&z=20
-		 *            q ==> locX,locY
-		 *            z ==> Zoom level integer eg. 20
+		 * https://www.google.com/maps/place/8+Sentosa+Gateway,+Singapore+098269/@1.2546,103.821162,17z/
+		 *            need to replace all whitespace with +
+		 *            @locX,locY
+		 *            17z ==> Zoom level integer
 		 *            (Change accordingly to your requirements)
 		 * ---------------------------------------------------------------------------------------
 		 */
-		
+
+		/* --------------------------------------Facebook------------------------------------------*/
+
+		$APP_ID = '1515229708793971';
+		$APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
+		//token
+		$TOKEN = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
+		$ID = "1487065338263076"; // your id or facebook page id
+
+		FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
+
+		$session = new FacebookSession($TOKEN);
+
+		$params = array(
+			"message" => $name,
+			"link" => "http://maps.google.com/maps?q=" . $locX . "," . $locY . "&z=20"
+		);
+
+		if($session){
+			try {
+				$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+			} catch(FacebookRequestException $e) {
+				echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+			}
+		}
+
+		/* -----------------------------End of Facebook------------------------------------------*/
 	}
 }
 ?>
