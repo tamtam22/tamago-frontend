@@ -67,10 +67,11 @@ VALUES (?,?,?,?,?,?,?);");
 		FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
 
 		$session = new FacebookSession($TOKEN);
+    $address = str_replace(' ', '+', $location);
 
 		$params = array(
-			"message" => $name,
-			"link" => "http://maps.google.com/maps?q=" . $locX . "," . $locY . "&z=20"
+			"message" => "Accident along " . $location,
+			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
 		);
 
 		if($session){
