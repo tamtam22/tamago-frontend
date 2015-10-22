@@ -273,13 +273,17 @@ uDate = moment(uDate);
                       <br /><br />
                       <?php if($status == "1") { ?>
                       <label for="timeTaken">Time Elapsed</label>
-                      <p class="form-control-static" id="timeTaken" name="timeTaken" style="font-size:34px;padding-top:0;">
+                      <p class="form-control-static" id="timeTaken" name="timeTaken" style="font-size:34px;padding-top:0;"><img src="images/load.gif" alt="Loading..."/>
                       <script>
-                      var duration = moment.duration(moment().diff(rDate));
-                      document.write(duration.format("d[days] h[hr] mm[min] ss[sec]"));
+                      var myVar = setInterval(myTimer, 1000);
+
+                      function myTimer() {
+                    	  var duration = moment.duration(moment().diff(rDate));
+                          document.getElementById("timeTaken").innerHTML = duration.format("d[days] h[hr] mm[min] ss[sec]");
+                      }
                       </script>
 					</p>
-          			<p><br><a href="incident_details.php?id=<?php echo $_GET["id"]; ?>&resolved=true" class="btn-lg btn-success" style="margin-left:7px;text-decoration:none;"><i class="fa fa-check"></i> &nbsp;Click here to mark incident as RESOLVED</a></p>
+          			<p><br><a href="incident_details.php?id=<?php echo $_GET["id"]; ?>&resolved=true" class="btn-lg btn-success" style="margin-left:7px;text-decoration:none;"><i class="fa fa-check"></i> &nbsp;Mark as Resolved</a></p>
 
                       <?php  } elseif($status == "0") {?>
                       <label for="timeTaken">Total Incident Duration</label>
@@ -289,7 +293,7 @@ uDate = moment(uDate);
                       document.write(duration.format("d[days] h[hr] mm[min] ss[sec]"));
                       </script>
                       </p>
-          			<p><br><a href="incident_details.php?id=<?php echo $_GET["id"]; ?>&reopen=true" class="btn-lg btn-danger" style="margin-left:7px;text-decoration:none;"><i class="fa fa-undo"></i> &nbsp;Click here to RE-OPEN incident</a></p>
+          			<p><br><a href="incident_details.php?id=<?php echo $_GET["id"]; ?>&reopen=true" class="btn-lg btn-danger" style="margin-left:7px;text-decoration:none;"><i class="fa fa-undo"></i> &nbsp;Re-open Incident</a></p>
 						<?php } ?>
 						<br><br>
                     </div>

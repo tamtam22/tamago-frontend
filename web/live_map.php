@@ -138,7 +138,7 @@
                     displayField += "<tr><td>Reported on:&nbsp;&nbsp;&nbsp;</td><td><b>" + moment(rDate).calendar() + "</b></td></tr>";
                     displayField += "<tr><td valign='top' style='padding:12px 0 0 0;'>Assistance Requested:&nbsp;&nbsp;&nbsp;</td><td style='padding:10px 0;line-height:25px;'><b>" + assTypeDefine + "</b></td></tr>";
                     if(myArr[b]["last_updated_on"] != null) {
-                        var t2 = myArr[b]["reported_on"].split(/[- :]/);
+                        var t2 = myArr[b]["last_updated_on"].split(/[- :]/);
                         var uDate = new Date(t2[0], t2[1]-1, t2[2], t2[3], t2[4], t2[5]);
                     	displayField += "<tr><td>Last updated on:&nbsp;&nbsp;&nbsp;</td><td><b>" + moment(uDate).calendar() + "</b></td></tr></table>";
                     }
