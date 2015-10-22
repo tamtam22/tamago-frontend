@@ -25,10 +25,10 @@ if(isset($_GET["resolved"]) && $_GET["resolved"] == "true") {
 	$resolved = $update->affected_rows;
 }
 
-$retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status, latitude, longitude FROM incidents WHERE id = ?");
+$retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status, latitude, longitude, location FROM incidents WHERE id = ?");
 $retrieve->bind_param("i", $_GET["id"]);
 $retrieve->execute();
-$retrieve->bind_result($id, $name, $mobile, $asst_type, $reported, $updated, $status, $lat, $lng);
+$retrieve->bind_result($id, $name, $mobile, $asst_type, $reported, $updated, $status, $lat, $lng, $location);
 while($retrieve->fetch()){
 	$asst_array = explode(",", $asst_type);
 }
@@ -121,6 +121,18 @@ $con->close();
     </script>
     <script type="text/javascript" src="js/moment.min.js"></script>
     <script type="text/javascript" src="js/moment-duration-format.js"></script>
+    <script type="text/javascript">
+    moment.locale('en', {
+        calendar : {
+            lastDay : '[Yesterday at] LT',
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            lastWeek : '[last] dddd [at] LT',
+            nextWeek : 'dddd [at] LT',
+            sameElse : 'DD MMM YYYY [-] LT'
+        }
+    });
+    </script>
     <script>
 var t1 = "<?php echo $reported; ?>";
 t1 = t1.split(/[- :]/);
@@ -227,7 +239,7 @@ uDate = moment(uDate);
                       <script>
                           if(moment(uDate).fromNow() == "Invalid date") {document.write("&mdash;");}
                           else { document.write(moment(uDate).fromNow()); }
-                          </script><?php if(!empty($updated)) {echo " &nbsp;&nbsp;<span class='btn btn-default btn-xs'>" . $lastUser . " - " . $lastUserType . "</span>";} ?>
+                          </script><?php if(!empty($updated)) {echo " &nbsp;&nbsp;<span class='btn btn-warning btn-xs'>" . $lastUser . " - " . $lastUserType . "</span>";} ?>
                       </div>
                     </div>
                     <?php } ?>
@@ -253,19 +265,27 @@ uDate = moment(uDate);
                     <?php } ?>
                   </div>
                   <div class="form-group">
+                    <label for="location">Location</label>
+                    <?php if(isset($_GET["update"]) && $_GET["update"] == "true") { ?>
+                    <textarea class="form-control" id="location" name="location" data-validation="length" data-validation-length="2-255"><?php echo $location; ?></textarea>
+                    <?php } else { ?>
+                    <p class="form-control-static" id="location" name="location"><?php echo $location?></p>
+                    <?php } ?>
+                  </div>
+                  <div class="form-group" style="margin-top:24px">
                     <label>Type of Assistance</label>
                     <div class="checkbox">
-                      <label>
+                      <label style="cursor:text">
                       <input type="checkbox" name="assistance[]" value=""<?php if (in_array("1", $asst_array)) {echo " checked";} if(!isset($_GET["update"]) || (isset($_GET["update"]) && $_GET["update"] != "true")) {echo " disabled"; }?>>Emergency Ambulance
                       </label>
                     </div>
                     <div class="checkbox">
-                      <label>
+                      <label style="cursor:text">
                       <input type="checkbox" name="assistance[]" value=""<?php if (in_array("2", $asst_array)) {echo " checked";} if(!isset($_GET["update"]) || (isset($_GET["update"]) && $_GET["update"] != "true")) {echo " disabled"; }?>>Rescue and Evacuation
                       </label>
                     </div>
                     <div class="checkbox">
-                      <label>
+                      <label style="cursor:text">
                       <input type="checkbox" name="assistance[]" value=""<?php if (in_array("3", $asst_array)) {echo " checked";} if(!isset($_GET["update"]) || (isset($_GET["update"]) && $_GET["update"] != "true")) {echo " disabled"; }?>>Fire Fighting
                       </label>
                     </div>

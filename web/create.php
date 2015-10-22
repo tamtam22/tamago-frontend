@@ -23,11 +23,12 @@ if(isset($_POST['submit'])) {
 	$mobile = $_POST["contact"];
 	$locX = $_POST["latitude"];
 	$locY = $_POST["longitude"];
+	$location = trim($_POST["location"]);
 	$assistance = implode(",", $_POST["assistance"]);
 	
-	$insert = $con->prepare("INSERT INTO incidents (name, mobile, latitude, longitude, assistance_type, operator)
-VALUES (?,?,?,?,?,?);");
-    $insert->bind_param("siddsi", $name, $mobile, $locX, $locY, $assistance, $_SESSION["user_id"]);
+	$insert = $con->prepare("INSERT INTO incidents (name, mobile, latitude, longitude, location, assistance_type, operator)
+VALUES (?,?,?,?,?,?,?);");
+    $insert->bind_param("siddssi", $name, $mobile, $locX, $locY, $location, $assistance, $_SESSION["user_id"]);
     $insert->execute();
 	$rows = $insert->affected_rows;
 	
@@ -72,6 +73,7 @@ VALUES (?,?,?,?,?,?);");
 		 * $locY ==> Y coordinates
 		 * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
 		 * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
+		 * $location ==> long address of incident location
 		 * 
 		 * if want to FB post or tweet gmap available to public, can use this url below:
 		 * http://maps.google.com/maps?q=1.354625,103.818740&z=20
@@ -109,9 +111,24 @@ VALUES (?,?,?,?,?,?);");
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&sensor=false"></script>
     <!-- Map Script -->
     <script>
+    var myArr = [];
+        function reverseGeolocation(x,y) {
+        	var xmlhttp = new XMLHttpRequest();
+            var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + x + "," + y;
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    myArr = JSON.parse(xmlhttp.responseText);
+                    document.getElementById("location").innerHTML = print_r(myArr);
+                }
+            }
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        };
+    
       var map;
       var marker = null;
       var mapTypeIds = [];
+      var geocoder = new google.maps.Geocoder;
       for(var type in google.maps.MapTypeId) {
         mapTypeIds.push(google.maps.MapTypeId[type]);
       }
@@ -181,6 +198,7 @@ VALUES (?,?,?,?,?,?);");
               $("#latitude").blur();$("#longitude").blur();$("#pac-input").val('');
               if (marker){marker.setMap(null);}
               marker = new google.maps.Marker({ position: marker2.getPosition(), map: map});
+              geocodeLatLng(geocoder, marker2.getPosition().toUrlValue());
             });
       
             if (place.geometry.viewport) {
@@ -200,8 +218,22 @@ VALUES (?,?,?,?,?,?);");
         $("#latitude").blur();$("#longitude").blur();$("#pac-input").val('');
         if (marker){marker.setMap(null);}
         marker = new google.maps.Marker({ position: event.latLng, map: map});
+        geocodeLatLng(geocoder, event.latLng.toUrlValue());
       });
-      }  
+      }
+      function geocodeLatLng(geocoder, myLatLng) {
+    	  var latlngStr = myLatLng.split(',', 2);
+    	  var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+    	  geocoder.geocode({'location': latlng}, function(results, status) {
+    	    if (status === google.maps.GeocoderStatus.OK) {
+    	      if (results[0]) {
+    	        document.getElementById("location").value = results[0].formatted_address;
+    	        document.getElementById("location").focus();
+    	        document.getElementById("location").blur();
+    	      }
+    	    }
+    	  });
+    	}
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
   </head>
@@ -284,6 +316,10 @@ VALUES (?,?,?,?,?,?);");
         <input class="form-control" id="contact" name="contact" type="number" data-validation="number" data-validation-allowing="range[80000000;99999999]" />
         </div>
         <div class="form-group">
+        <label for="contact">Location</label>
+        <textarea class="form-control" id="location" name="location" data-validation="length" data-validation-length="2-255"></textarea>
+        </div>
+        <div class="form-group">
         <label>Type of Assistance</label>
         <div class="checkbox">
         <label>
@@ -306,7 +342,7 @@ VALUES (?,?,?,?,?,?);");
         <div class="col-lg-8">
         <div class="row" style="margin-bottom:0!important;">
         <div class="form-group col-lg-8">
-        <label for="pac-input">Location</label>
+        <label for="pac-input">Search</label>
         <div class="form-group input-group">
         <input id="pac-input" type="text" class="form-control" placeholder="Search for any location by typing here...">
         <span class="input-group-btn">
@@ -331,7 +367,7 @@ VALUES (?,?,?,?,?,?);");
         </div>
         <!-- /.row (nested) -->
         <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" name="submit" class="btn btn-lg btn-success btn-block"><i class="fa fa-plus"></i>&nbsp; Create Incident Report</button></div>
-        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="if(confirm('Are you sure you want to cancel creating this report?')) location.href='index.php';return false;" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
+        <div class="form-group col-lg-6" style="margin-top:15px"><button type="submit" onclick="if(confirm('Are you sure you want to cancel creating this report?')){window.location.href='index.php';return false;}" class="btn btn-lg btn-danger btn-block"><i class="fa fa-times"></i>&nbsp; Cancel</button></div>
         </div>
         <!-- /.panel-body -->
         </div>
@@ -352,7 +388,7 @@ VALUES (?,?,?,?,?,?);");
       var myLanguage = {
         errorTitle: 'Form submission failed!',
         requiredFields: 'Please click on the map below to set a location',
-        lengthBadStart: 'The name must be between ',
+        lengthBadStart: 'The length must be between ',
         lengthBadEnd: ' characters',
         badInt: 'The number must start with either "8" or "9" and have exactly 8 digits',
         badAlphaNumericExtra: ' and ',

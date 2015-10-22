@@ -9,6 +9,18 @@
     <script type="text/javascript" src="js/maplabel.js"></script>
     <script type="text/javascript" src="js/markerwithlabel.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript">
+    moment.locale('en', {
+        calendar : {
+            lastDay : '[Yesterday at] LT',
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            lastWeek : '[last] dddd [at] LT',
+            nextWeek : 'dddd [at] LT',
+            sameElse : 'DD MMM YYYY [-] LT'
+        }
+    });
+    </script>
     <script>
         var myArr = [];
         var mymap;
@@ -140,11 +152,12 @@
                     if(myArr[b]["last_updated_on"] != null) {
                         var t2 = myArr[b]["last_updated_on"].split(/[- :]/);
                         var uDate = new Date(t2[0], t2[1]-1, t2[2], t2[3], t2[4], t2[5]);
-                    	displayField += "<tr><td>Last updated on:&nbsp;&nbsp;&nbsp;</td><td><b>" + moment(uDate).calendar() + "</b></td></tr></table>";
+                    	displayField += "<tr><td>Last updated on:&nbsp;&nbsp;&nbsp;</td><td><b>" + moment(uDate).calendar() + "</b></td></tr>";
                     }
                     else {
-                    	displayField += "<tr><td>Last updated on:&nbsp;&nbsp;&nbsp;</td><td><b>-</b></td></tr></table>";
+                    	displayField += "<tr><td>Last updated on:&nbsp;&nbsp;&nbsp;</td><td><b>-</b></td></tr>";
                     }
+                    displayField +="<tr><td colspan='2' style='text-align:center;padding:15px 0 0 30px;'><a class='btn btn-primary' onclick='window.top.location.href=\"incident_details.php?id=" + myArr[b]["id"] + "\"'>More Details</a> &nbsp;<a class='btn btn-success' onclick='window.top.location.href=\"incident_details.php?id=" + myArr[b]["id"] + "&resolved=true\"'><i class='fa fa-check'></i> Mark as Resolved</a></td></tr></table>";
 					
                     var marker = new MarkerWithLabel({
                         position: latLng,

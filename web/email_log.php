@@ -26,6 +26,19 @@ if(!isset($_SESSION["user_id"])){
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript">
+    moment.locale('en', {
+        calendar : {
+            lastDay : '[Yesterday at] LT',
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            lastWeek : '[last] dddd [at] LT',
+            nextWeek : 'dddd [at] LT',
+            sameElse : 'DD MMM YYYY [-] LT'
+        }
+    });
+    </script>
   </head>
   <body>
     <div id="wrapper">
@@ -93,23 +106,30 @@ if(!isset($_SESSION["user_id"])){
                       <thead>
                         <tr>
                           <th width="5%">#</th>
-                          <th width="45%">Sent on</th>
-                          <th width="45%">Receipient</th>
+                          <th width="30%">Sent on</th>
+                          <th width="65%">Receipient</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php 
                           $con = mysqli_connect("localhost", "root", "", "cms");
-                          $retrieve = $con->prepare("SELECT E.id, E.sent_date_time, U.name FROM email_log E, users U GROUP BY E.id ORDER BY E.id DESC");
+                          $retrieve = $con->prepare("SELECT e.id, e.sent_date_time, u.name, t.name FROM email_log e, users u, users_type t WHERE e.receipient_id = u.id AND t.id = u.user_type GROUP BY e.id ORDER BY e.id DESC");
                           $retrieve->execute();
-                          $retrieve->bind_result($id, $sent, $receipient);
+                          $retrieve->bind_result($id, $sent, $receipient, $user_type);
                           while ($row = $retrieve->fetch()){
                           	$dt = new DateTime($sent);
                           	?>
                         <tr>
                           <td><?php echo $id; ?></td>
-                          <td><?php echo date("d M Y - h:i:s A",strtotime($sent)); ?></td>
-                          <td><b><?php echo $receipient; ?></b></td>
+                          <td>
+                          <script>
+                          var s1 = "<?php echo $sent; ?>";
+                          s1 = s1.split(/[- :]/);
+                          var sDate = new Date(s1[0], s1[1]-1, s1[2], s1[3], s1[4], s1[5]);
+                          document.write(moment(sDate).calendar());
+                          </script>
+							</td>
+                          <td><b><?php echo $receipient . " <div class='pull-right'><kbd>" . $user_type . "</kbd></div>"; ?></b></td>
                         </tr>
                         <?php
                           }

@@ -27,6 +27,18 @@ if(!isset($_SESSION["user_id"])){
     <script src="js/respond.min.js"></script>
     <![endif]-->
     <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript">
+    moment.locale('en', {
+        calendar : {
+            lastDay : '[Yesterday at] LT',
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            lastWeek : '[last] dddd [at] LT',
+            nextWeek : 'dddd [at] LT',
+            sameElse : 'DD MMM YYYY [-] LT'
+        }
+    });
+    </script>
   </head>
   <body>
     <div id="wrapper">
