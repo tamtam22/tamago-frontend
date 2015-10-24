@@ -74,6 +74,25 @@ if (isset($_POST['submit'])) {
     	}
     }
     /* -------------------------------End of Facebook------------------------------------------*/
+    
+    /* -----------------------------------Twitter----------------------------------------------*/
+    require_once('codebird.php'); // require codebird
+    // initialize Codebird (using your access tokens) - establish connection with Twitter
+    \Codebird\Codebird::setConsumerKey("ofpBvnJjeaYBRxEVljoA6WKvx", "6CjGxqBtk5TWmfklR2kaNtJpFRJfwWZH2JFWnOaKOCoW4Gh0jl");
+	$cb = \Codebird\Codebird::getInstance();
+	$cb->setToken("2871277556-2fCE4bI5yODAHD7SF72jLuLHbq5PJvBbjJyDJ4h", "Zx9NYBHi8lRM5MtKb8UPZpmjQcYhbb7PQhR0BSVZAqD9N");
+	$params = array(
+			'status' => "Accident along " . $location
+			);
+	$reply  = $cb->statuses_update($params);
+	// check if tweet successfully posted
+	$status = $reply->httpstatus;
+	if ($status == 200) {
+		// do nothing
+	} else {
+		echo "Failure may be due to repeated post";
+	}
+    /* ---------------------------------End of Twitter-----------------------------------------*/
   }
 }
 ?>
