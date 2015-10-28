@@ -49,6 +49,7 @@ if (isset($_POST['submit'])) {
      * $locX ==> X coordinates
      * $locY ==> Y coordinates
      * $location ==> long address of incident location
+     * $northPSI , $southPSI , $eastPSI , $westPSI , $centralPSI ==> PSI values
      * 
      * $assistance ==> comma seperated values for assistance type (e.g. 1,2 or 1,2,3 or 2,3 etc. - refer below line)
      * LEGEND: 1 = Emergency Ambulance, 2 = Rescue & Evac, 3 = Fire Fighting
