@@ -13,6 +13,15 @@ if (!isset($_SESSION["user_id"])) {
 if ($_SESSION["user_type"] == "3") {
   die("ERROR: Only Call Center Operators can create new incident reports!");
 }
+// get PSI
+$url_psi = "http://www.nea.gov.sg/api/WebAPI?dataset=psi_update&keyref=781CF461BB6606ADBC7C75BF9D4F60DB2676ABFA7BD37F6E";
+$xml_psi = simplexml_load_string(file_get_contents($url_psi));
+$northPSI = $xml_psi->item[0]->region[0]->record[0]->reading[0]['value'];
+$southPSI = $xml_psi->item[0]->region[5]->record[0]->reading[0]['value'];
+$eastPSI = $xml_psi->item[0]->region[3]->record[0]->reading[0]['value'];
+$westPSI = $xml_psi->item[0]->region[4]->record[0]->reading[0]['value'];
+$centralPSI = $xml_psi->item[0]->region[2]->record[0]->reading[0]['value'];
+
 $con = mysqli_connect("localhost", "root", "", "cms");
 if (mysqli_connect_errno()) {
   die("MySQL error: " . mysqli_connect_error());
