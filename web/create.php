@@ -5,8 +5,7 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphObject;
 use Facebook\FacebookRequestException;
-require 'PHPMailer-master/PHPMailerAutoload.php';
-$mail = new PHPMailer;
+include ("smsAPI/src/NexmoMessage.php");
 
 if (!isset($_SESSION["user_id"])) {
   header('Location: login.php');
@@ -96,7 +95,22 @@ if (isset($_POST['submit'])) {
 		echo "Failure may be due to repeated post";
 	}
     /* ---------------------------------End of Twitter-----------------------------------------*/
+
+	/* -------------------------------------SMS------------------------------------------------*/
+	$nexmo_sms = new NexmoMessage('4161573d', 'f580506f');
+	$number = null;
+
+	$who = str_replace(',', ' OR id = ', $assistance);
+	$retrieve = $con->prepare("SELECT contact_no FROM contacts WHERE id = " . $who);
+	$retrieve->execute();
+	$retrieve->bind_result($contact_no);
+	while ($retrieve->fetch()) {
+		$info = $nexmo_sms->sendText($contact_no, 'TamagoCMS', 'This is from TamagoCMS. We need your assistance at the following location :'.$location);
+	}
+	$retrieve->close();
+    /* -----------------------------------End of SMS-------------------------------------------*/
   }
+  $con->close();
 }
 ?>
 <!DOCTYPE html>
