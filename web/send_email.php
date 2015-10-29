@@ -93,7 +93,7 @@ $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, 
 $mail->Port = 587;                                    // TCP port to connect to
 
 $mail->setFrom('presleylim92@gmail.com', 'TamagoCMS');
-$mail->addAddress('zach.junwei@hotmail.com');               // Name is optional
+$mail->addAddress('presleylim92@gmail.com');               // Name is optional
 
 $mail->isHTML(true);                                  // Set email format to HTML
 
