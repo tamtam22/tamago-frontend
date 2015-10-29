@@ -1,3 +1,4 @@
+
 <?php
 require 'PHPMailer/PHPMailerAutoload.php';
 // get PSI
@@ -14,12 +15,73 @@ $con = mysqli_connect("localhost", "root", "", "cms");
 $retrieve = $con->prepare("SELECT id, name, mobile, location, assistance_type, reported_on FROM incidents WHERE status = 1 ORDER BY id DESC");
 $retrieve->execute();
 $retrieve->bind_result($id, $name, $mobile, $location, $asst_type, $reported);
-while ($retrieve->fetch()) {
-	// do your code here
-	// put into table format etc etc
-}
-$retrieve->close();
+$body = null;
 
+// PSI Table
+$body .= '<table style="width:20%">';
+$body .= '<tr><td colspan="5"><h2>PSI Reading</h2></td></tr>';
+$body .= '<tr style="font-weight:bold;text-align:center">';
+$body .= '<td>North</td>';
+$body .= '<td>South</td>';		
+$body .= '<td>East</td>';
+$body .= '<td>West</td>';
+$body .= '<td>Central</td>';
+$body .= '</tr>'; 
+
+$body .= '<tr style="text-align:center">';
+$body .= '<td>'.$northPSI.'</td>';
+$body .= '<td>'.$southPSI.'</td>';		
+$body .= '<td>'.$eastPSI.'</td>';
+$body .= '<td>'.$westPSI.'</td>';
+$body .= '<td>'.$centralPSI.'</td>';
+$body .= '</tr>'; 
+$body .= '</table><br><br>';
+
+//Incident Report Table 
+$body .= '<table style="width:100%">';
+$body .= '<tr><td colspan="6"><h2>Incident Report</h2></td></tr>';
+$body .= '<tr>';
+$body .= '<td style="width:20px"><b>ID</b></td>';
+$body .= '<td><b>Name of Caller</b></td>';		
+$body .= '<td><b>Mobile Number</b></td>';
+$body .= '<td><b>Location of Incident</b></td>';
+$body .= '<td><b>Assistance Type(s)</b></td>';
+$body .= '<td><b>Reported Time</b></td>';
+$body .= '</tr>';
+
+$Id = 1;
+
+
+while ($retrieve->fetch()) :
+$asst_name = null;
+if($asst_type != null){
+	$asst_array = (explode(",",$asst_type));
+	if(in_array("1",$asst_array)){
+		$asst_name = $asst_name."[Ambulance]  ";
+	}
+	
+	if(in_array("2",$asst_array)){
+		$asst_name = $asst_name."[Rescue & Evacuation]  ";
+	}
+	
+	if(in_array("3",$asst_array)){
+		$asst_name = $asst_name."[Fire Fighting]  ";
+	}
+}
+$body .= '<tr>';
+$body .= '<td>'.$Id.'</td>';
+$body .= '<td>'.$name.'</td>';		
+$body .= '<td>'.$mobile .'</td>';
+$body .= '<td>'.$location.'</td>';
+$body .= '<td>'.$asst_name.'</td>';
+$body .= '<td>'.$reported.'</td>';
+$body .= '</tr>';
+  
+$Id = $Id + 1;
+
+endwhile;
+$retrieve->close();
+$body .= '</table>';
 $mail = new PHPMailer;
 //$mail->SMTPDebug = 3;                               // Enable verbose debug output
 $mail->isSMTP();                                      // Set mailer to use SMTP
@@ -31,12 +93,14 @@ $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, 
 $mail->Port = 587;                                    // TCP port to connect to
 
 $mail->setFrom('presleylim92@gmail.com', 'TamagoCMS');
-$mail->addAddress('presleylim92@gmail.com');               // Name is optional
+$mail->addAddress('zach.junwei@hotmail.com');               // Name is optional
 
 $mail->isHTML(true);                                  // Set email format to HTML
 
 $mail->Subject = 'Status Report';
-$mail->Body    = 'PSI Status <br> North: '.$northPSI.'<br>South: '.$southPSI.'<br>Central: '.$centralPSI.'<br>East: '.$eastPSI.'<br>west: '.$westPSI.'<br><br><br>Incident Report<br>Accident Location: <br>Assistance: ';
+$headers  = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$mail->Body    = $body;
 
 if($mail->send())
 {
