@@ -1,5 +1,11 @@
 ﻿<?php
 session_start();
+require_once("facebook/autoload.php");
+use Facebook\FacebookSession;
+use Facebook\FacebookRequest;
+use Facebook\GraphObject;
+use Facebook\FacebookRequestException;
+
 if (!isset($_SESSION["user_id"])) {
   header('Location: login.php');
   exit();
@@ -23,7 +29,40 @@ if (isset($_POST['submit'])) {
   $update->bind_param("siddssiii", $name, $mobile, $locX, $locY, $location, $assistance, $last_upd, $status, $id);
   $rc = $update->execute();
   $update->close();
+ 
+  // if update is successful in database, update facebook and redirect user back to incident details page
   if (!false === $rc) {
+  	/* --------------------------------------Facebook------------------------------------------*/
+  	$APP_ID     = '1515229708793971';
+  	$APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
+  	//token
+  	$TOKEN      = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
+  	$ID         = "1487065338263076"; // your id or facebook page id
+  	FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
+  	$session = new FacebookSession($TOKEN);
+  	$address = str_replace(' ', '+', $location);
+ 
+  	// UPDATE FACEBOOK MESSAGE ACCORDING TO THE STATUS. 1 = RE-OPEN , 0 = MARKED AS RESOLVED
+  	if($status == 1) {
+  		$params  = array(
+  			"message" => "Accident along " . $location,
+  			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
+  		);
+  	} else {
+  		$params  = array(
+  				"message" => "Accident along " . $location,
+  				"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
+  		);
+  	}
+  	if ($session) {
+  		try {
+  			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+  		}
+  		catch (FacebookRequestException $e) {
+  			echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+  		}
+  	}
+  	/* -------------------------------End of Facebook------------------------------------------*/
     header("Location: incident_details.php?id=" . $_GET["id"] . "&update=true");
   }
 } else {
