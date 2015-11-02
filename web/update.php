@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
   		);
   	} else {
   		$params  = array(
-  				"message" => "Accident along " . $location,
+  				"message" => "Accident along " . $location . ", has been resolved",
   				"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
   		);
   	}
