@@ -32,8 +32,8 @@ if (isset($_POST['login'])) {
     <title>Authentication :: Crisis Management System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <style type="text/css">body{background-color:#fff}#loginbox{margin-top:-150px}#loginbox>div:first-child{padding-bottom:30px}.iconmelon{display:block;margin:auto}#form>div{margin-bottom:25px}#form>div:last-child{margin-top:10px;margin-bottom:10px}.panel
-      {background-color:transparent}.panel-body{padding-top:30px;background-color:rgba(2555,255,255,.3)}.iconlogo,.im{position:relative;display:block;fill:#525151;text-align:center;font-size:26px;letter-spacing:.2em;font-weight:bold}.iconlogo:after,.im:after
+    <style type="text/css">body{background-image:url(images/bg.jpg);background-repeat:no-repeat;background-size:auto 100%;background-attachment:fixed;background-color:#fff}@media screen and (min-width: 1028px){body{background-size:100% 100vh;}}#loginbox{margin-top:-150px}#loginbox>div:first-child{padding-bottom:30px}.iconmelon{display:block;margin:auto}#form>div{margin-bottom:25px}#form>div:last-child{margin-top:10px;margin-bottom:10px}.panel
+      {background-color:transparent}.panel-body{padding-top:30px}#loginbox{background-color:rgba(0,0,0,.8);padding:25px 5px 10px 5px;border-radius:15px}.iconlogo,.im{position:relative;display:block;fill:#525151;text-align:center;font-size:26px;letter-spacing:.2em;font-weight:bold}.iconlogo:after,.im:after
       {content:'';position:absolute;top:0;left:0;width:100%;height:100%}.form-horizontal .form-control{font-size:15px;box-sizing:border-box;padding:10px;height:auto}.vertical-center{min-height:100%;min-height:100vh;display:flex;align-items:center}
     </style>
     <script src="js/jquery-2.1.4.min.js"></script>
@@ -42,12 +42,12 @@ if (isset($_POST['login'])) {
   <body>
     <div class="container vertical-center">
       <div id="loginbox" class="mainbox col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3">
-        <div class="row">
-          <div class="iconlogo">
-            <span style="color:red">CRISIS</span> MANAGEMENT SYSTEM
+        <div class="row" style="padding-bottom:10px">
+          <div class="iconlogo" style="color:#fff">
+            <span style="color:red;font-size:50px">CRISIS</span><br>MANAGEMENT SYSTEM
           </div>
         </div>
-        <div class="panel panel-default" style="border:0">
+        <div class="panel panel-default" style="border:0;box-shadow:none;-webkit-box-shadow:none;margin-bottom:0">
           <div class="panel-body">
             <?php if (isset($count) && $count == 0) { ?>
             <div class="alert alert-danger">
@@ -68,7 +68,7 @@ if (isset($_POST['login'])) {
               <div class="form-group">
                 <!-- Button -->
                 <div class="col-sm-12 controls">
-                  <button type="submit" name="login" class="btn btn-lg btn-success btn-block"><i class="glyphicon glyphicon-log-in"></i>&nbsp; Sign in</button>                          
+                  <button type="submit" name="login" class="btn btn-lg btn-primary btn-block"><i class="glyphicon glyphicon-log-in"></i>&nbsp; Sign in</button>                          
                 </div>
               </div>
             </form>

@@ -16,9 +16,9 @@ $con = mysqli_connect("localhost", "root", "", "cms");
 // get all the accidents which are ongoing, showing the latest one on top
 
 /*-------------------------------------------getAllOpenIncidents(desc)---------------------------------------------*/
-$retrieve = $con->prepare("SELECT id, name, mobile, location, assistance_type, reported_on FROM incidents WHERE status = 1 ORDER BY id DESC");
+$retrieve = $con->prepare("SELECT id, location, assistance_type, reported_on FROM incidents WHERE status = 1 ORDER BY id DESC");
 $retrieve->execute();
-$retrieve->bind_result($id, $name, $mobile, $location, $asst_type, $reported);
+$retrieve->bind_result($id, $location, $asst_type, $reported);
 $body = null;
 
 // PSI Table
@@ -45,9 +45,8 @@ $body .= '</table><br><br>';
 $body .= '<table style="width:100%">';
 $body .= '<tr><td colspan="6"><h2>Incident Report</h2></td></tr>';
 $body .= '<tr>';
-$body .= '<td style="width:20px"><b>ID</b></td>';
-$body .= '<td><b>Name of Caller</b></td>';		
-$body .= '<td><b>Mobile Number</b></td>';
+$body .= '<td style="width:20px"><b>No</b></td>';
+$body .= '<td style="width:50px"><b>Incident ID</b></td>';
 $body .= '<td><b>Location of Incident</b></td>';
 $body .= '<td><b>Assistance Type(s)</b></td>';
 $body .= '<td><b>Reported Time</b></td>';
@@ -74,8 +73,7 @@ if($asst_type != null){
 }
 $body .= '<tr>';
 $body .= '<td>'.$Id.'</td>';
-$body .= '<td>'.$name.'</td>';		
-$body .= '<td>'.$mobile .'</td>';
+$body .= '<td>'.$id.'</td>';
 $body .= '<td>'.$location.'</td>';
 $body .= '<td>'.$asst_name.'</td>';
 $body .= '<td>'.$reported.'</td>';
@@ -94,13 +92,13 @@ $mail = new PHPMailer;
 $mail->isSMTP();                                      // Set mailer to use SMTP
 $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
 $mail->SMTPAuth = true;                               // Enable SMTP authentication
-$mail->Username = 'presleylim92@gmail.com';                 // SMTP username
-$mail->Password = '32presleyzx';                           // SMTP password
+$mail->Username = 'tamago.cms.demo@gmail.com';                 // SMTP username
+$mail->Password = 'tamago12345';                           // SMTP password
 $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
 $mail->Port = 587;                                    // TCP port to connect to
 
-$mail->setFrom('presleylim92@gmail.com', 'TamagoCMS');
-$mail->addAddress('presleylim92@gmail.com');               // Name is optional
+$mail->setFrom('tamago.cms.demo@gmail.com', 'TamagoCMS');
+$mail->addAddress('pm.lee.hsien.loong.demo@gmail.com');               // Name is optional
 
 $mail->isHTML(true);                                  // Set email format to HTML
 
