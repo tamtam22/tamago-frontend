@@ -85,7 +85,7 @@ endwhile;
 $retrieve->close();
 /*------------------------------------End of get all open incidents-------------------------------------*/
 
-/*------------------------------------sendEmail(emailcontent, address)------------------------------------*/
+/*------------------------------------sendEmail(emailContent, address)------------------------------------*/
 $body .= '</table>';
 $mail = new PHPMailer;
 //$mail->SMTPDebug = 3;                               // Enable verbose debug output

@@ -45,6 +45,8 @@
         $time_ago = "&mdash;";
       return $time_ago;
     }
+
+    /*-------------------------------------------getAllOpenIncidents()---------------------------------------------*/
     $con      = mysqli_connect("localhost", "root", "", "cms");
     $retrieve = $con->prepare("SELECT id, name, mobile, latitude, longitude, assistance_type, reported_on FROM incidents WHERE status = 1 ORDER BY id DESC");
     $retrieve->execute();
@@ -67,6 +69,7 @@
   }
   $retrieve->close();
   $con->close();
+    /*-----------------------------------------End of get all open incidents---------------------------------------*/
   ?>
   </tbody>
 </table>

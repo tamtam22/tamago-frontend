@@ -85,6 +85,7 @@ $con->close();
     mapTypeIds.push("OSM");
     var latLng = new google.maps.LatLng(<?php echo $lat . ", " . $lng; ?>);
 
+    /*-------------------------------------------displayMap()---------------------------------------------*/
     function initialize() {
         var mapOptions = {
             zoom: 18,
@@ -121,6 +122,8 @@ $con->close();
             labelInBackground: false
         });
     }
+    /*---------------------------------------End of display map-----------------------------------------*/
+    
     google.maps.event.addDomListener(window, 'load', initialize);
 
     moment.locale('en', {
