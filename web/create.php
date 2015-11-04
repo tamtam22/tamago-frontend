@@ -19,6 +19,8 @@ $con = mysqli_connect("localhost", "root", "", "cms");
 if (mysqli_connect_errno()) {
   die("MySQL error: " . mysqli_connect_error());
 }
+
+/* -----------------------createIncidentReport(name, mobile, locX, locY, location, assistance)-------------------------*/
 if (isset($_POST['submit'])) {
   $name       = $_POST["name"];
   $mobile     = $_POST["contact"];
@@ -31,6 +33,7 @@ if (isset($_POST['submit'])) {
   $insert->bind_param("siddssi", $name, $mobile, $locX, $locY, $location, $assistance, $_SESSION["user_id"]);
   $insert->execute();
   $rows = $insert->affected_rows;
+/*------------------------------------------End of create incident report----------------------------------------------*/
 
   if ($rows == 1) {
     /* ---------------------------------------------------------------------------------------
@@ -54,7 +57,7 @@ if (isset($_POST['submit'])) {
      *            (Change accordingly to your requirements)
      * --------------------------------------------------------------------------------------- */
 
-    /* --------------------------------------Facebook------------------------------------------*/
+    /* -----------------------postFacebookStatus(locX, locY, location)-------------------------*/
     $APP_ID     = '1515229708793971';
     $APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
     //token
@@ -77,7 +80,7 @@ if (isset($_POST['submit'])) {
     }
     /* -------------------------------End of Facebook------------------------------------------*/
     
-    /* -----------------------------------Twitter----------------------------------------------*/
+    /* ----------------------------postTwitterStatus(location)----------------------------------*/
     require_once('codebird.php'); // require codebird
     // initialize Codebird (using your access tokens) - establish connection with Twitter
     \Codebird\Codebird::setConsumerKey("ofpBvnJjeaYBRxEVljoA6WKvx", "6CjGxqBtk5TWmfklR2kaNtJpFRJfwWZH2JFWnOaKOCoW4Gh0jl");
@@ -96,7 +99,7 @@ if (isset($_POST['submit'])) {
 	}
     /* ---------------------------------End of Twitter-----------------------------------------*/
 
-	/* -------------------------------------SMS------------------------------------------------*/
+	/* ---------------------------------sendSMSRequest(location)---------------------------------*/
 	$nexmo_sms = new NexmoMessage('4161573d', 'f580506f');
 	$number = null;
 

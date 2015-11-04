@@ -98,6 +98,7 @@ if (!isset($_SESSION["user_id"])) {
                       </thead>
                       <tbody>
                         <?php
+                          /*-------------------------------------------getAllReports()--------------------------------------------*/
                           date_default_timezone_set('Asia/Singapore');
                           $con      = mysqli_connect("localhost", "root", "", "cms");
                           $retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status FROM incidents ORDER BY id DESC");
@@ -141,6 +142,7 @@ if (!isset($_SESSION["user_id"])) {
                           }
                           $retrieve->close();
                           $con->close();
+                          /*-------------------------------------------getAllReports()--------------------------------------------*/
                         ?>
                       </tbody>
                     </table>
