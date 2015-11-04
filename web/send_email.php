@@ -1,6 +1,7 @@
 
 <?php
 require 'PHPMailer/PHPMailerAutoload.php';
+/*-----------------------------------------getPSIValue()---------------------------------------------*/
 // get PSI
 $url_psi = "http://www.nea.gov.sg/api/WebAPI?dataset=psi_update&keyref=781CF461BB6606ADBC7C75BF9D4F60DB2676ABFA7BD37F6E";
 $xml_psi = simplexml_load_string(file_get_contents($url_psi));
@@ -9,9 +10,12 @@ $southPSI = $xml_psi->item[0]->region[5]->record[0]->reading[0]['value'];
 $eastPSI = $xml_psi->item[0]->region[3]->record[0]->reading[0]['value'];
 $westPSI = $xml_psi->item[0]->region[4]->record[0]->reading[0]['value'];
 $centralPSI = $xml_psi->item[0]->region[2]->record[0]->reading[0]['value'];
+/*-------------------------------------End of get PSI value------------------------------------------*/
 
 $con = mysqli_connect("localhost", "root", "", "cms");
 // get all the accidents which are ongoing, showing the latest one on top
+
+/*-------------------------------------------getAllOpenIncidents(desc)---------------------------------------------*/
 $retrieve = $con->prepare("SELECT id, name, mobile, location, assistance_type, reported_on FROM incidents WHERE status = 1 ORDER BY id DESC");
 $retrieve->execute();
 $retrieve->bind_result($id, $name, $mobile, $location, $asst_type, $reported);
@@ -81,6 +85,9 @@ $Id = $Id + 1;
 
 endwhile;
 $retrieve->close();
+/*------------------------------------End of get all open incidents-------------------------------------*/
+
+/*------------------------------------sendEmail(emailcontent, address)------------------------------------*/
 $body .= '</table>';
 $mail = new PHPMailer;
 //$mail->SMTPDebug = 3;                               // Enable verbose debug output
@@ -124,4 +131,5 @@ else
 }
 $insert->close();
 $con->close();
+/*-----------------------------------------End of send email-----------------------------------------*/
 ?>

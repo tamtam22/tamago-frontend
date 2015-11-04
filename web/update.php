@@ -15,6 +15,8 @@ if (!isset($_GET["id"])) {
 }
 $con        = mysqli_connect("localhost", "root", "", "cms");
 $asst_array = "";
+
+/*-------------------------------updateIncident(name, mobile, locX, locY, location, assistance, status, lastUpdatedUser)----------------------------*/
 if (isset($_POST['submit'])) {
   $name       = $_POST["name"];
   $mobile     = $_POST["contact"];
@@ -29,10 +31,12 @@ if (isset($_POST['submit'])) {
   $update->bind_param("siddssiii", $name, $mobile, $locX, $locY, $location, $assistance, $last_upd, $status, $id);
   $rc = $update->execute();
   $update->close();
+/*-----------------------------------------------------------End of update incident----------------------------------------------------------*/
+
  
   // if update is successful in database, update facebook and redirect user back to incident details page
   if (!false === $rc) {
-  	/* --------------------------------------Facebook------------------------------------------*/
+  	/* -----------------------postFacebookStatus(locX, locY, location)-------------------------*/
   	$APP_ID     = '1515229708793971';
   	$APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
   	//token
@@ -41,33 +45,33 @@ if (isset($_POST['submit'])) {
   	FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
   	$session = new FacebookSession($TOKEN);
   	$address = str_replace(' ', '+', $location);
-
+ 
   	// UPDATE FACEBOOK MESSAGE ACCORDING TO THE STATUS. 1 = RE-OPEN , 0 = MARKED AS RESOLVED
-  	$checkStatus = $_POST["checkStatus"];
-  	if($status != $checkStatus) {
-  		if($status == 1) {
-  			$params  = array(
-  				"message" => "Accident along " . $location,
+  	if($status == 1) {
+  		$params  = array(
+  			"message" => "Accident along " . $location,
+  			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
+  		);
+  	} else {
+  		$params  = array(
+  				"message" => "Accident along " . $location . ", has been resolved",
   				"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
-  			);
-  		} else {
-  			$params  = array(
-  					"message" => "UPDATE: Accident along " . $location . " has been resolved."
-  			);
+  		);
+  	}
+  	if ($session) {
+  		try {
+  			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
   		}
-  		if ($session) {
-  			try {
-  				$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
-  			}
-  			catch (FacebookRequestException $e) {
-  				echo "[Facebook] Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
-  			}
+  		catch (FacebookRequestException $e) {
+  			echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
   		}
   	}
   	/* -------------------------------End of Facebook------------------------------------------*/
     header("Location: incident_details.php?id=" . $_GET["id"] . "&update=true");
   }
 } else {
+
+  /*-----------------------------------------getIncidentDetails(id)-------------------------------------------*/
   $retrieve = $con->prepare("SELECT id, name, mobile, assistance_type, reported_on, last_updated_on, status, latitude, longitude, location FROM incidents WHERE id = ?");
   $retrieve->bind_param("i", $_GET["id"]);
   $retrieve->execute();
@@ -84,6 +88,7 @@ if (isset($_POST['submit'])) {
     }
   }
   $retrieve->close();
+  /*-------------------------------------End of get incident details-----------------------------------------*/
 }
 $con->close();
 ?>
@@ -117,6 +122,7 @@ $con->close();
     mapTypeIds.push("OSM");
     var latLng = new google.maps.LatLng(<?php echo $lat . ", " . $lng; ?>);
 
+    /*-------------------------------------------displayMap()---------------------------------------------*/
     function initialize() {
         var mapOptions = {
             zoom: 18,
@@ -229,6 +235,7 @@ $con->close();
             geocodeLatLng(geocoder, event.latLng.toUrlValue());
         });
     }
+    /*---------------------------------------End of display map-----------------------------------------*/
 
     function geocodeLatLng(geocoder, myLatLng) {
         var latlngStr = myLatLng.split(',', 2);
@@ -344,7 +351,6 @@ $con->close();
                       <option value="1"<?php if($status == "1") { echo ' selected="selected"'; } ?>>Open</option>
                       <option value="0"<?php if($status == "0") { echo ' selected="selected"'; } ?>>Resolved</option>
                     </select>
-                    <input type="hidden" name="checkStatus" id="checkStatus" value="<?php echo $status; ?>" />
                   </div>
                 </div>
                 <div class="col-lg-8">

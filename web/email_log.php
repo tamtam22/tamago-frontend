@@ -94,12 +94,14 @@ if(!isset($_SESSION["user_id"])){
                       </thead>
                       <tbody>
                         <?php
+                          /* ---------------------------------getEmailLog()-----------------------------------*/
                           $con      = mysqli_connect("localhost", "root", "", "cms");
                           $retrieve = $con->prepare("SELECT e.id, e.sent_date_time, u.name, t.name FROM email_log e, users u, users_type t WHERE e.receipient_id = u.id AND t.id = u.user_type GROUP BY e.id ORDER BY e.id DESC");
                           $retrieve->execute();
                           $retrieve->bind_result($id, $sent, $receipient, $user_type);
                           while ($row = $retrieve->fetch()) {
                             $dt = new DateTime($sent);
+                          /* --------------------------------End of email log----------------------------------*/  
                           ?>
                         <tr>
                           <td><?php echo $id; ?></td>

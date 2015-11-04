@@ -26,6 +26,7 @@
     var mymap;
     var incident_count = 0;
     var incident_count2 = -1;
+    /*-----------------------------------------getPSIValue()---------------------------------------------*/
     $(document).ready(function() {
         $.ajax({
             type: "GET",
@@ -45,6 +46,7 @@
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
     });
+    /*--------------------------------------End of get PSI value------------------------------------------*/
 
     //setup PSI here
     var psi = [];
@@ -66,6 +68,7 @@
     var labelObjects = [],
         mymap2;
 
+    /*-------------------------------------------displayMap()---------------------------------------------*/
     function initialize() {
         var element = document.getElementById("map");
         var mapTypeIds = [];
@@ -207,6 +210,7 @@
         }
 
     }
+    /*---------------------------------------End of display map-----------------------------------------*/
     function toggleP() {
         if (labelObjects[0].getMap()) {
             labelObjects[0].setMap(null);
@@ -263,11 +267,13 @@
           refreshTable();
       });
       
+      /*-------------------------------------------getAllOpenIncidents()---------------------------------------------*/
       function refreshTable() {
           $('#live-table').load('incidents_ajax.php', function() {
               setTimeout(refreshTable, 1000);
           });
       }
+      /*-----------------------------------------End of get all open incidents---------------------------------------*/
       $(document).ajaxComplete(function() {
           if (incident_count2 == -1) {
               incident_count2 = incident_count;

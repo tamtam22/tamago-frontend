@@ -145,6 +145,7 @@ if (isset($_POST['submit'])) {
     }
     mapTypeIds.push("OSM");
 
+    /*-------------------------------------------displayMap()---------------------------------------------*/
     function initialize() {
         var mapOptions = {
             zoom: 12,
@@ -253,6 +254,7 @@ if (isset($_POST['submit'])) {
             geocodeLatLng(geocoder, event.latLng.toUrlValue());
         });
     }
+    /*---------------------------------------End of display map-----------------------------------------*/
 
     function geocodeLatLng(geocoder, myLatLng) {
         var latlngStr = myLatLng.split(',', 2);
