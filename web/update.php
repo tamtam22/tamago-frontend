@@ -41,25 +41,27 @@ if (isset($_POST['submit'])) {
   	FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
   	$session = new FacebookSession($TOKEN);
   	$address = str_replace(' ', '+', $location);
- 
+
   	// UPDATE FACEBOOK MESSAGE ACCORDING TO THE STATUS. 1 = RE-OPEN , 0 = MARKED AS RESOLVED
-  	if($status == 1) {
-  		$params  = array(
-  			"message" => "Accident along " . $location,
-  			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
-  		);
-  	} else {
-  		$params  = array(
-  				"message" => "Accident along " . $location . ", has been resolved",
+  	$checkStatus = $_POST["checkStatus"];
+  	if($status != $checkStatus) {
+  		if($status == 1) {
+  			$params  = array(
+  				"message" => "Accident along " . $location,
   				"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
-  		);
-  	}
-  	if ($session) {
-  		try {
-  			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+  			);
+  		} else {
+  			$params  = array(
+  					"message" => "UPDATE: Accident along " . $location . " has been resolved."
+  			);
   		}
-  		catch (FacebookRequestException $e) {
-  			echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+  		if ($session) {
+  			try {
+  				$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+  			}
+  			catch (FacebookRequestException $e) {
+  				echo "[Facebook] Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+  			}
   		}
   	}
   	/* -------------------------------End of Facebook------------------------------------------*/
@@ -342,6 +344,7 @@ $con->close();
                       <option value="1"<?php if($status == "1") { echo ' selected="selected"'; } ?>>Open</option>
                       <option value="0"<?php if($status == "0") { echo ' selected="selected"'; } ?>>Resolved</option>
                     </select>
+                    <input type="hidden" name="checkStatus" id="checkStatus" value="<?php echo $status; ?>" />
                   </div>
                 </div>
                 <div class="col-lg-8">
