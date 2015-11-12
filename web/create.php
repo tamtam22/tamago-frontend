@@ -285,7 +285,7 @@ if (isset($_POST['submit'])) {
         </div>
         <ul class="nav navbar-left top-nav">
           <li>
-            <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Dashboard</a>
+            <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Map</a>
           </li>
           <li>
             <a href="create.php" class="active" style="text-align:center"><i class="fa fa-fw fa-edit"></i><br>New Report</a>

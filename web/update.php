@@ -266,7 +266,7 @@ $con->close();
       </div>
       <ul class="nav navbar-left top-nav">
         <li>
-          <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Dashboard</a>
+          <a href="index.php" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Map</a>
         </li>
         <?php if($_SESSION["user_type"] != "3") { ?>
         <li>

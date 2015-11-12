@@ -13,7 +13,7 @@ if(!isset($_SESSION["user_id"])){
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta content="" name="description">
     <meta content="" name="author">
-    <title>Dashboard :: Crisis Management System</title>
+    <title>Map :: Crisis Management System</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/sb-admin.css" rel="stylesheet">
     <link href="fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -40,7 +40,7 @@ if(!isset($_SESSION["user_id"])){
         </div>
         <ul class="nav navbar-left top-nav">
           <li>
-            <a href="index.php" class="active" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Dashboard</a>
+            <a href="index.php" class="active" style="text-align:center"><i class="fa fa-fw fa-dashboard"></i><br>Map</a>
           </li>
           <?php if($_SESSION["user_type"] != "3") { ?>
           <li>
