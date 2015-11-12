@@ -27,7 +27,7 @@ $centralPSI = $xml_psi->item[0]->region[2]->record[0]->reading[0]['value'];
     FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
     $session = new FacebookSession($TOKEN);
     $params  = array(
-      "message" => "Current PSI values: \n" .
+      "message" => "Current 3-hr PSI values: \n" .
       				"North: " . $northPSI . " PSI\n" .
       				"South: " . $southPSI . " PSI\n" .
       				"East: " . $eastPSI . " PSI\n" .
