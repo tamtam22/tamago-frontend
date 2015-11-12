@@ -1,5 +1,11 @@
 ﻿<?php
 session_start();
+require_once("facebook/autoload.php");
+use Facebook\FacebookSession;
+use Facebook\FacebookRequest;
+use Facebook\GraphObject;
+use Facebook\FacebookRequestException;
+
 if (!isset($_SESSION["user_id"])) {
   header('Location: login.php');
   exit();
@@ -10,6 +16,29 @@ if (!isset($_GET["id"])) {
 $asst_array = "";
 $con        = mysqli_connect("localhost", "root", "", "cms");
 
+/*-----------------------------------------getIncidentDetails(id)-------------------------------------------*/
+$retrieve = $con->prepare("SELECT i.id, i.name, i.mobile, i.assistance_type, i.reported_on, i.last_updated_on, i.status, i.latitude, i.longitude, i.location, u.name FROM incidents i, users u WHERE i.id = ? AND i.operator = u.id GROUP BY i.id");
+$retrieve->bind_param("i", $_GET["id"]);
+$retrieve->execute();
+$retrieve->bind_result($id, $name, $mobile, $asst_type, $reported, $updated, $status, $lat, $lng, $location, $operator);
+while ($retrieve->fetch()) {
+	$asst_array = explode(",", $asst_type);
+}
+$retrieve->close();
+if (!empty($updated)) {
+	$retrieve = $con->prepare("SELECT u.name, t.name FROM incidents i, users u, users_type t WHERE i.id = ? AND i.last_updated_user = u.id AND u.user_type = t.id GROUP BY i.id");
+	$retrieve->bind_param("i", $_GET["id"]);
+	$retrieve->execute();
+	$retrieve->bind_result($lastUser, $lastUserType);
+	while ($retrieve->fetch()) {
+	}
+	$retrieve->close();
+}
+/*-------------------------------------End of get incident details-----------------------------------------*/
+
+$locX = $lat;
+$locY = $lng;
+
 /*------------------------------------------reopenIncident(id)----------------------------------------------*/
 if (isset($_GET["reopen"]) && $_GET["reopen"] == "true") {
   $update = $con->prepare("UPDATE incidents SET status = 1, last_updated_user = ? WHERE id = ?");
@@ -17,6 +46,32 @@ if (isset($_GET["reopen"]) && $_GET["reopen"] == "true") {
   $update->execute();
   $reopen = $update->affected_rows;
   $update->close();
+  if($reopen == 1) {
+  	/* -----------------------postFacebookStatus(locX, locY, location)-------------------------*/
+  	$APP_ID     = '1515229708793971';
+  	$APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
+  	//token
+  	$TOKEN      = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
+  	$ID         = "1487065338263076"; // your id or facebook page id
+  	FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
+  	$session = new FacebookSession($TOKEN);
+  	$address = str_replace(' ', '+', $location);
+  	
+  	$params  = array(
+  			"message" => "Accident along " . $location,
+  			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
+  	);
+  	if ($session) {
+  		try {
+  			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+  		}
+  		catch (FacebookRequestException $e) {
+  			echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+  		}
+  	}
+  	/* -------------------------------End of Facebook------------------------------------------*/
+  }
+  $status = 1;
 }
 /*----------------------------------------End of reopen incident--------------------------------------------*/
 
@@ -27,28 +82,35 @@ if (isset($_GET["resolved"]) && $_GET["resolved"] == "true") {
   $update->execute();
   $resolved = $update->affected_rows;
   $update->close();
+  if($resolved == 1) {
+  	/* -----------------------postFacebookStatus(locX, locY, location)-------------------------*/
+  	$APP_ID     = '1515229708793971';
+  	$APP_SECRET = 'dbbf3d1a9618eeb0575a724cd4bbedd0';
+  	//token
+  	$TOKEN      = "CAAViFZBiLuHMBAEcPDpgooqZBeap8Hwp4nmYqmlSH3RkKXFFj5r0uZB3Kub06fQEDkfxzBLx6po5LfZBihu4ZAL0LIqUkZBrucvyq5SospdtgZC1sPjyHOHHW5UE4XAc1D3HpxZCTbeWI2LPw4uVt76KvrpMJbvQBygNGji01ukWgjbHm1w1IU91x8X0KLMerPsZD";
+  	$ID         = "1487065338263076"; // your id or facebook page id
+  	FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
+  	$session = new FacebookSession($TOKEN);
+  	$address = str_replace(' ', '+', $location);
+  	
+  	$params  = array(
+  			"message" => "Accident along " . $location . ", has been resolved",
+  			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
+  	);
+  }
+  	if ($session) {
+  		try {
+  			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
+  		}
+  		catch (FacebookRequestException $e) {
+  			echo "Exception occured, code: " . $e->getCode() . " with message: " . $e->getMessage();
+  		}
+  	}
+  	/* -------------------------------End of Facebook------------------------------------------*/
+  $status = 0;
 }
 /*-----------------------------------------End of close incident--------------------------------------------*/
 
-/*-----------------------------------------getIncidentDetails(id)-------------------------------------------*/
-$retrieve = $con->prepare("SELECT i.id, i.name, i.mobile, i.assistance_type, i.reported_on, i.last_updated_on, i.status, i.latitude, i.longitude, i.location, u.name FROM incidents i, users u WHERE i.id = ? AND i.operator = u.id GROUP BY i.id");
-$retrieve->bind_param("i", $_GET["id"]);
-$retrieve->execute();
-$retrieve->bind_result($id, $name, $mobile, $asst_type, $reported, $updated, $status, $lat, $lng, $location, $operator);
-while ($retrieve->fetch()) {
-  $asst_array = explode(",", $asst_type);
-}
-$retrieve->close();
-if (!empty($updated)) {
-  $retrieve = $con->prepare("SELECT u.name, t.name FROM incidents i, users u, users_type t WHERE i.id = ? AND i.last_updated_user = u.id AND u.user_type = t.id GROUP BY i.id");
-  $retrieve->bind_param("i", $_GET["id"]);
-  $retrieve->execute();
-  $retrieve->bind_result($lastUser, $lastUserType);
-  while ($retrieve->fetch()) {
-  }
-  $retrieve->close();
-}
-/*-------------------------------------End of get incident details-----------------------------------------*/
 $con->close();
 ?>
 <!DOCTYPE html>
