@@ -61,6 +61,14 @@ if (isset($_GET["reopen"]) && $_GET["reopen"] == "true") {
   			"message" => "Accident along " . $location,
   			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
   	);
+  	
+  	$retrieve = $con->prepare("SELECT u.name, t.name, i.last_updated_on FROM incidents i, users u, users_type t WHERE i.id = ? AND i.last_updated_user = u.id AND u.user_type = t.id GROUP BY i.id");
+  	$retrieve->bind_param("i", $_GET["id"]);
+  	$retrieve->execute();
+  	$retrieve->bind_result($lastUser, $lastUserType, $updated);
+  	while ($retrieve->fetch()) {
+  	}
+  	$retrieve->close();
   	if ($session) {
   		try {
   			$response = (new FacebookRequest($session, 'POST', '/'.$ID.'/feed', $params))->execute()->getGraphObject();
@@ -97,6 +105,14 @@ if (isset($_GET["resolved"]) && $_GET["resolved"] == "true") {
   			"message" => "Accident along " . $location . ", has been resolved",
   			"link" => "https://www.google.com/maps/place/" . $address . "/@" . $locX . "," . $locY . ",17z/"
   	);
+  	
+  	$retrieve = $con->prepare("SELECT u.name, t.name, i.last_updated_on FROM incidents i, users u, users_type t WHERE i.id = ? AND i.last_updated_user = u.id AND u.user_type = t.id GROUP BY i.id");
+  	$retrieve->bind_param("i", $_GET["id"]);
+  	$retrieve->execute();
+  	$retrieve->bind_result($lastUser, $lastUserType, $updated);
+  	while ($retrieve->fetch()) {
+  	}
+  	$retrieve->close();
   }
   	if ($session) {
   		try {
@@ -110,7 +126,6 @@ if (isset($_GET["resolved"]) && $_GET["resolved"] == "true") {
   $status = 0;
 }
 /*-----------------------------------------End of close incident--------------------------------------------*/
-
 $con->close();
 ?>
 <!DOCTYPE html>
